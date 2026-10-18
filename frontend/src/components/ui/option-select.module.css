@@ -1,0 +1,132 @@
+.root {
+  position: relative;
+}
+
+.trigger {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 11px 0 12px;
+  border: 1px solid #d5e0ec;
+  border-radius: 10px;
+  outline: 0;
+  color: #17253d;
+  background: #fbfdff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.trigger:hover:not(:disabled) {
+  border-color: #b8cce2;
+  background: #fff;
+}
+
+.trigger:focus-visible,
+.trigger[aria-expanded="true"] {
+  border-color: #0b73f6;
+  box-shadow: 0 0 0 4px rgba(11, 115, 246, 0.1);
+  background: #fff;
+}
+
+.trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.trigger svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: #62758f;
+  transition: transform 0.16s ease;
+}
+
+.trigger[aria-expanded="true"] > svg {
+  transform: rotate(180deg);
+}
+
+.placeholder {
+  color: #64758c;
+}
+
+.selectedValue {
+  overflow: hidden;
+  color: #17253d;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  right: 0;
+  left: 0;
+  z-index: 20;
+  max-height: 218px;
+  overflow-y: auto;
+  padding: 5px;
+  border: 1px solid #d5e0ec;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 16px 34px rgba(28, 56, 97, 0.18);
+  animation: menuIn 0.14s ease-out;
+}
+
+.option,
+.optionSelected {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 7px;
+  color: #34465e;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.option:hover,
+.option:focus-visible {
+  outline: 0;
+  background: #f1f6fc;
+}
+
+.optionSelected {
+  color: #075fc9;
+  background: #eaf4ff;
+}
+
+.optionSelected svg {
+  width: 14px;
+  height: 14px;
+  color: #0b73f6;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

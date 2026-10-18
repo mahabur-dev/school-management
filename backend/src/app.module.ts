@@ -8,9 +8,11 @@ import configuration from './config/configuration';
 import { PrismaModule } from './prisma';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
+import { FeaturesModule } from './modules/features/features.module';
 import { SchoolsModule } from './modules/schools/schools.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 import { UsersModule } from './modules/users/users.module';
+import { StudentsModule } from './modules/students/students.module';
 
 @Module({
   imports: [
@@ -28,8 +30,10 @@ import { UsersModule } from './modules/users/users.module';
     }),
     PrismaModule,
     HealthModule,
+    FeaturesModule,
     AuthModule,
     UsersModule,
+    StudentsModule,
     SchoolsModule,
     SuperAdminModule,
   ],

@@ -31,6 +31,13 @@
   color: #17253d;
   font-size: 20px;
   letter-spacing: -0.5px;
+  text-decoration: none;
+}
+
+.brand:focus-visible {
+  outline: 3px solid rgba(11, 115, 246, 0.2);
+  outline-offset: 5px;
+  border-radius: 8px;
 }
 
 .brandMark {
@@ -54,9 +61,15 @@
   background: currentColor;
 }
 
-.brandMark span:nth-child(1) { height: 12px; }
-.brandMark span:nth-child(2) { height: 19px; }
-.brandMark span:nth-child(3) { height: 15px; }
+.brandMark span:nth-child(1) {
+  height: 12px;
+}
+.brandMark span:nth-child(2) {
+  height: 19px;
+}
+.brandMark span:nth-child(3) {
+  height: 15px;
+}
 
 .closeMenu,
 .menuButton,
@@ -78,7 +91,10 @@
 
 .closeMenu svg,
 .menuButton svg,
-.iconButton svg { width: 20px; height: 20px; }
+.iconButton svg {
+  width: 20px;
+  height: 20px;
+}
 
 .navigation {
   display: grid;
@@ -113,15 +129,25 @@
   text-decoration: none;
 }
 
-.navItem svg { width: 19px; height: 19px; color: #64758c; stroke-width: 2; }
-.navItem:disabled { opacity: 1; cursor: default; }
+.navItem svg {
+  width: 19px;
+  height: 19px;
+  color: #64758c;
+  stroke-width: 2;
+}
+.navItem:disabled {
+  opacity: 1;
+  cursor: default;
+}
 
 .navActive {
   color: #0767dc;
   font-weight: 800;
   background: #eaf3ff;
 }
-.navActive svg { color: #0870ed; }
+.navActive svg {
+  color: #0870ed;
+}
 
 .activeDot {
   width: 5px;
@@ -160,9 +186,19 @@
   font-weight: 800;
 }
 
-.helpCard div { display: grid; gap: 2px; }
-.helpCard strong { color: #23344c; font-size: 12px; }
-.helpCard small { color: #64758c; font-size: 10px; line-height: 1.35; }
+.helpCard div {
+  display: grid;
+  gap: 2px;
+}
+.helpCard strong {
+  color: #23344c;
+  font-size: 12px;
+}
+.helpCard small {
+  color: #64758c;
+  font-size: 10px;
+  line-height: 1.35;
+}
 
 .workspace {
   min-width: 0;
@@ -192,8 +228,12 @@
   align-items: center;
 }
 
-.topbarLeft { gap: 15px; }
-.topbarRight { gap: 12px; }
+.topbarLeft {
+  gap: 15px;
+}
+.topbarRight {
+  gap: 12px;
+}
 
 .returnButton {
   height: 40px;
@@ -216,7 +256,9 @@
   background: #fff;
 }
 
-.schoolIdentity { gap: 10px; }
+.schoolIdentity {
+  gap: 10px;
+}
 
 .schoolCrest {
   width: 38px;
@@ -237,11 +279,23 @@
 }
 
 .schoolIdentity strong,
-.profile strong { color: #1d2d44; font-size: 13px; font-weight: 800; }
+.profile strong {
+  color: #1d2d44;
+  font-size: 13px;
+  font-weight: 800;
+}
 .schoolIdentity small,
-.profile small { color: #65768d; font-size: 10px; font-weight: 550; }
+.profile small {
+  color: #65768d;
+  font-size: 10px;
+  font-weight: 550;
+}
 .schoolIdentity > svg,
-.profile > svg { width: 14px; height: 14px; color: #6f8097; }
+.profile > svg {
+  width: 14px;
+  height: 14px;
+  color: #6f8097;
+}
 
 .iconButton {
   position: relative;
@@ -273,15 +327,63 @@
   text-align: left;
 }
 
-.profileMenu { position: relative; }
-.profileDropdown { position: absolute; top: calc(100% + 12px); right: 0; z-index: 40; width: 178px; padding: 7px; border: 1px solid #dce5f0; border-radius: 12px; background: #fff; box-shadow: 0 14px 35px rgba(28, 53, 91, .15); }
-.profileDropdown button { width: 100%; height: 38px; display: flex; align-items: center; gap: 9px; padding: 0 10px; border: 0; border-radius: 8px; color: #34465e; background: transparent; font: inherit; font-size: 12px; font-weight: 700; text-align: left; cursor: pointer; }
-.profileDropdown button:hover { background: #f1f6fd; color: #0b68da; }
-.profileDropdown button svg { width: 17px; height: 17px; }
-.profileDropdown .logoutItem { color: #b23d3d; }
-.profileDropdown .logoutItem:hover { color: #a32e2e; background: #fff3f3; }
-.profileDropdown button:disabled { cursor: wait; opacity: .7; }
-.menuDivider { display: block; height: 1px; margin: 6px 3px; background: #e8edf4; }
+.profileMenu {
+  position: relative;
+}
+.profileDropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 40;
+  width: 178px;
+  padding: 7px;
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 14px 35px rgba(28, 53, 91, 0.15);
+}
+.profileDropdown button {
+  width: 100%;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #34465e;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.profileDropdown button:hover {
+  background: #f1f6fd;
+  color: #0b68da;
+}
+.profileDropdown button svg {
+  width: 17px;
+  height: 17px;
+}
+.profileDropdown .logoutItem {
+  color: #b23d3d;
+}
+.profileDropdown .logoutItem:hover {
+  color: #a32e2e;
+  background: #fff3f3;
+}
+.profileDropdown button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+.menuDivider {
+  display: block;
+  height: 1px;
+  margin: 6px 3px;
+  background: #e8edf4;
+}
 
 .avatar {
   width: 40px;
@@ -297,19 +399,35 @@
   font-weight: 850;
 }
 
-.content { padding: 28px 34px 40px; }
-.backdrop { display: none; }
+.content {
+  padding: 28px 34px 40px;
+}
+.backdrop {
+  display: none;
+}
 
 @media (max-width: 1040px) {
-  .appShell { grid-template-columns: 220px minmax(0, 1fr); }
-  .sidebar { padding-inline: 15px; }
-  .topbar { padding-inline: 24px; }
-  .content { padding-inline: 24px; }
-  .profileCopy { display: none; }
+  .appShell {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .sidebar {
+    padding-inline: 15px;
+  }
+  .topbar {
+    padding-inline: 24px;
+  }
+  .content {
+    padding-inline: 24px;
+  }
+  .profileCopy {
+    display: none;
+  }
 }
 
 @media (max-width: 800px) {
-  .appShell { display: block; }
+  .appShell {
+    display: block;
+  }
   .sidebar {
     position: fixed;
     left: 0;
@@ -318,9 +436,13 @@
     transition: transform 200ms ease;
     box-shadow: 18px 0 48px rgba(18, 43, 82, 0.18);
   }
-  .sidebarOpen { transform: translateX(0); }
+  .sidebarOpen {
+    transform: translateX(0);
+  }
   .closeMenu,
-  .menuButton { display: grid; }
+  .menuButton {
+    display: grid;
+  }
   .backdrop {
     position: fixed;
     inset: 0;
@@ -333,18 +455,34 @@
     background: rgba(15, 31, 57, 0.34);
     backdrop-filter: blur(2px);
   }
-  .topbar { height: 74px; }
-  .schoolCrest { display: none; }
-  .returnButton { padding-inline: 10px; }
+  .topbar {
+    height: 74px;
+  }
+  .schoolCrest {
+    display: none;
+  }
+  .returnButton {
+    padding-inline: 10px;
+  }
 }
 
 @media (max-width: 520px) {
-  .topbar { padding-inline: 16px; }
-  .content { padding: 20px 16px 32px; }
-  .schoolIdentity > svg { display: none; }
-  .profile { display: none; }
+  .topbar {
+    padding-inline: 16px;
+  }
+  .content {
+    padding: 20px 16px 32px;
+  }
+  .schoolIdentity > svg {
+    display: none;
+  }
+  .profile {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sidebar { transition: none; }
+  .sidebar {
+    transition: none;
+  }
 }

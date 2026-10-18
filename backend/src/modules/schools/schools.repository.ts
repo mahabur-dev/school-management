@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaService, SchoolStatus, UserRole } from '../../prisma';
+import { bootstrapFeatureConfiguration } from '../features/feature-configuration.bootstrap';
 import { USER_PUBLIC_SELECT } from '../users/users.repository';
 
 /**
@@ -10,7 +11,11 @@ import { USER_PUBLIC_SELECT } from '../users/users.repository';
 export class SchoolsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Creates the school and its first admin atomically (one nested write). */
+  /**
+   * Creates the tenant root, first administrator, and default feature access
+   * in one transaction. A failed configuration bootstrap rolls the school and
+   * administrator back too, so no tenant can exist without its defaults.
+   */
   createWithAdmin(input: {
     name: string;
     slug: string;
@@ -22,21 +27,26 @@ export class SchoolsRepository {
       phoneNumber?: string;
     };
   }) {
-    return this.prisma.school.create({
-      data: {
-        name: input.name,
-        slug: input.slug,
-        users: {
-          create: {
-            ...input.admin,
-            role: UserRole.SCHOOL_ADMIN,
-            mustChangePassword: false,
-            // The super admin vouches for the address; no OTP on first login.
-            emailVerifiedAt: new Date(),
+    return this.prisma.$transaction(async (tx) => {
+      const school = await tx.school.create({
+        data: {
+          name: input.name,
+          slug: input.slug,
+          users: {
+            create: {
+              ...input.admin,
+              role: UserRole.SCHOOL_ADMIN,
+              mustChangePassword: false,
+              // The super admin vouches for the address; no OTP on first login.
+              emailVerifiedAt: new Date(),
+            },
           },
         },
-      },
-      include: { users: { select: USER_PUBLIC_SELECT } },
+        include: { users: { select: USER_PUBLIC_SELECT } },
+      });
+
+      await bootstrapFeatureConfiguration(tx, [school.id]);
+      return school;
     });
   }
 

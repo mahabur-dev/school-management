@@ -1,0 +1,46 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.eyebrow {
+  display: block;
+  margin-bottom: 7px;
+  color: #0870ed;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.header h1 {
+  margin: 0;
+  color: #17253d;
+  font-size: 32px;
+  letter-spacing: -0.045em;
+}
+.header p {
+  max-width: 650px;
+  margin: 7px 0 0;
+  color: #68778d;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.action {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+@media (max-width: 620px) {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .action {
+    width: 100%;
+  }
+  .action > * {
+    width: 100%;
+  }
+}

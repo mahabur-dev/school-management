@@ -1,0 +1,72 @@
+/// Developer-owned feature catalogue. It is seeded and never managed by
+/// school administrators.
+model Feature {
+  id          String     @id @default(uuid(7)) @db.Uuid
+  key         FeatureKey @unique
+  name        String     @db.VarChar(100)
+  description String?    @db.VarChar(500)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  fields       FeatureField[]
+  schoolAccess SchoolFeature[]
+
+  @@map("features")
+}
+
+/// A field offered by a feature. `isCore` fields are always enabled and
+/// required; tenant-specific settings live in SchoolFeatureField.
+model FeatureField {
+  id        String           @id @default(uuid(7)) @db.Uuid
+  featureId String           @map("feature_id") @db.Uuid
+  key       String           @db.VarChar(80)
+  label     String           @db.VarChar(100)
+  type      FeatureFieldType
+  isCore    Boolean          @default(false) @map("is_core")
+  sortOrder Int              @default(0) @map("sort_order")
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  feature        Feature              @relation(fields: [featureId], references: [id], onDelete: Restrict)
+  schoolSettings SchoolFeatureField[]
+
+  @@unique([featureId, key])
+  @@index([featureId, sortOrder])
+  @@map("feature_fields")
+}
+
+/// Per-school feature access. A missing row means that the feature is
+/// disabled for that school.
+model SchoolFeature {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  schoolId  String   @map("school_id") @db.Uuid
+  featureId String   @map("feature_id") @db.Uuid
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school  School  @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  feature Feature @relation(fields: [featureId], references: [id], onDelete: Restrict)
+
+  @@unique([schoolId, featureId])
+  @@index([schoolId, enabled])
+  @@map("school_features")
+}
+
+/// Per-school visibility and requiredness for one catalogue field.
+model SchoolFeatureField {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  schoolId       String   @map("school_id") @db.Uuid
+  featureFieldId String   @map("feature_field_id") @db.Uuid
+  enabled        Boolean  @default(true)
+  required       Boolean  @default(false)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school       School       @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  featureField FeatureField @relation(fields: [featureFieldId], references: [id], onDelete: Restrict)
+
+  @@unique([schoolId, featureFieldId])
+  @@index([schoolId, enabled])
+  @@map("school_feature_fields")
+}

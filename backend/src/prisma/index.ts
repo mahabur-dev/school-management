@@ -3,6 +3,8 @@ export { PrismaService } from './prisma.service';
 export { Prisma } from '../generated/prisma/client';
 export {
   AuthTokenType,
+  FeatureFieldType,
+  FeatureKey,
   SchoolStatus,
   UserRole,
   UserStatus,
@@ -10,6 +12,11 @@ export {
 export type {
   AuthSession,
   AuthToken,
+  Feature,
+  FeatureField,
   School,
+  SchoolFeature,
+  SchoolFeatureField,
+  Student,
   User,
 } from '../generated/prisma/client';
