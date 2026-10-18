@@ -16,13 +16,6 @@ export const platformMetrics: PlatformMetric[] = [
   { label: 'Feature adoption', value: '87%', change: '+4.6%', detail: 'student management enabled', icon: 'features', tone: 'blue' },
 ];
 
-export const recentSchools = [
-  { name: 'Northbridge Academy', slug: 'northbridge-academy', initials: 'NA', admin: 'Tasnim Ahmed', users: '1,248', status: 'Active', tone: 'blue' },
-  { name: 'Scholars International', slug: 'scholars-intl', initials: 'SI', admin: 'Nafisa Karim', users: '986', status: 'Active', tone: 'amber' },
-  { name: 'Crescent Model School', slug: 'crescent-model', initials: 'CM', admin: 'Rayhan Kabir', users: '742', status: 'Pending', tone: 'purple' },
-  { name: 'Riverdale School & College', slug: 'riverdale-sc', initials: 'RS', admin: 'Mehedi Hasan', users: '1,536', status: 'Active', tone: 'green' },
-];
-
 export const platformActivity = [
   { title: 'New school workspace created', detail: 'Northbridge Academy', time: '12 min', icon: 'building' as const, tone: 'blue' },
   { title: 'Feature configuration updated', detail: 'Scholars International', time: '34 min', icon: 'features' as const, tone: 'amber' },

@@ -19,7 +19,6 @@ export type CurrentUser = {
 export type AuthSession = {
   user: CurrentUser;
   accessToken: string;
-  refreshToken: string;
   tokenType: 'Bearer';
   accessTokenExpiresIn: number;
   refreshTokenExpiresAt: string;

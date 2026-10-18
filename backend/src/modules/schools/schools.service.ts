@@ -3,13 +3,15 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   getPagination,
   toPaginated,
 } from '../../common/helpers/pagination.helper';
-import { generateTempPassword } from '../../common/helpers/temp-password.helper';
 import { SchoolStatus } from '../../prisma';
 import { PasswordService } from '../auth/password.service';
+import { MailService } from '../mail/mail.service';
+import { getSchoolAdminInvitationTemplate } from '../mail/templates/school-admin-invitation.template';
 import { CreateSchoolDto } from './dto/create-school.dto';
 import { ListSchoolsQueryDto } from './dto/list-schools-query.dto';
 import { SchoolsRepository } from './schools.repository';
@@ -31,14 +33,15 @@ const RESERVED_SLUGS = new Set([
 @Injectable()
 export class SchoolsService {
   constructor(
+    private readonly config: ConfigService,
     private readonly repository: SchoolsRepository,
     private readonly passwords: PasswordService,
+    private readonly mail: MailService,
   ) {}
 
   /**
-   * Creates a school plus its first SCHOOL_ADMIN. The temporary password is
-   * returned once and never stored in plain text; the admin must change it at
-   * first login.
+   * Creates a school plus its first SCHOOL_ADMIN. The administrator chooses a
+   * password in the protected platform form; only its hash is persisted.
    */
   async createWithAdmin(dto: CreateSchoolDto) {
     if (RESERVED_SLUGS.has(dto.slug)) {
@@ -51,21 +54,33 @@ export class SchoolsService {
       throw new ConflictException('A user with this email already exists');
     }
 
-    const temporaryPassword = generateTempPassword();
     const school = await this.repository.createWithAdmin({
       name: dto.name,
       slug: dto.slug,
       admin: {
         email: dto.adminEmail,
-        passwordHash: await this.passwords.hash(temporaryPassword),
-        firstName: dto.adminFirstName,
-        lastName: dto.adminLastName,
+        passwordHash: await this.passwords.hash(dto.adminPassword),
+        firstName: dto.adminFirstName ?? 'School',
+        lastName: dto.adminLastName ?? 'Administrator',
         phoneNumber: dto.adminPhoneNumber,
       },
     });
 
     const { users, ...schoolFields } = school;
-    return { school: schoolFields, admin: users[0], temporaryPassword };
+    const administrator = users[0];
+    const loginUrl = `${this.config.getOrThrow<string>('app.webUrl')}/login/${school.slug}`;
+    const invitationEmailSent = await this.mail.send({
+      to: administrator.email,
+      ...getSchoolAdminInvitationTemplate({
+        appName: this.config.getOrThrow<string>('app.name'),
+        schoolName: school.name,
+        administratorName: `${administrator.firstName} ${administrator.lastName}`,
+        administratorEmail: administrator.email,
+        password: dto.adminPassword,
+        loginUrl,
+      }),
+    });
+    return { school: schoolFields, admin: administrator, invitationEmailSent };
   }
 
   async list(query: ListSchoolsQueryDto) {

@@ -114,7 +114,13 @@ export class SessionService {
       throw new UnauthorizedException('Account is unavailable');
     }
 
-    return this.issue(user, session.rememberMe, metadata, session.familyId);
+    const tokens = await this.issue(
+      user,
+      session.rememberMe,
+      metadata,
+      session.familyId,
+    );
+    return { user, ...tokens };
   }
 
   async revoke(sessionId: string): Promise<void> {

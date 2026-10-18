@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { AppIcon, type AppIconName } from '@/components/ui/app-icon';
-import { TenantSwitcher } from './tenant-switcher';
+import { authApi } from '@/features/auth/api';
 import { session } from '@/lib/auth/session';
 import styles from './school-dashboard-shell.module.css';
 
@@ -11,6 +12,7 @@ export type DashboardNavigationItem = {
   label: string;
   icon: AppIconName;
   active?: boolean;
+  href?: string;
 };
 
 type DashboardShellProps = {
@@ -24,7 +26,7 @@ type DashboardShellProps = {
   fallbackName: string;
   helpTitle: string;
   helpText: string;
-  allowTenantSwitch?: boolean;
+  logoutHref: '/login' | '/super-admin/login';
 };
 
 const schoolNavigation: DashboardNavigationItem[] = [
@@ -50,6 +52,7 @@ export function SchoolDashboardShell({ children }: { children: ReactNode }) {
       fallbackName="School Admin"
       helpTitle="Need help?"
       helpText="Contact platform support"
+      logoutHref="/login"
     >
       {children}
     </DashboardShell>
@@ -67,10 +70,13 @@ export function DashboardShell({
   fallbackName,
   helpTitle,
   helpText,
-  allowTenantSwitch = false,
+  logoutHref,
 }: DashboardShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [isLoggingOut, setLoggingOut] = useState(false);
   const user = session.get()?.user;
   const displayName = user ? `${user.firstName} ${user.lastName}` : fallbackName;
   const initials = user
@@ -82,6 +88,19 @@ export function DashboardShell({
   function returnToPlatform() {
     if (!session.restorePlatform()) return;
     router.replace('/super-admin');
+  }
+
+  async function logout() {
+    const activeSession = session.get();
+    setLoggingOut(true);
+    session.clear();
+    if (activeSession) await authApi.logout(activeSession.accessToken).catch(() => undefined);
+    router.replace(logoutHref);
+  }
+
+  function openProfile() {
+    setProfileOpen(false);
+    router.push(user?.role === 'SUPER_ADMIN' ? '/super-admin/profile' : '/dashboard/profile');
   }
 
   return (
@@ -110,19 +129,18 @@ export function DashboardShell({
 
         <nav className={styles.navigation} aria-label={`${effectiveWorkspaceName} navigation`}>
           <span className={styles.navLabel}>{navigationLabel}</span>
-          {navigation.map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
-              disabled={!item.active}
-              title={item.active ? undefined : `${item.label} module coming next`}
-            >
-              <AppIcon name={item.icon} />
-              <span>{item.label}</span>
-              {item.active ? <span className={styles.activeDot} /> : null}
-            </button>
-          ))}
+          {navigation.map((item) => {
+            const isActive = item.href ? pathname === item.href : item.active;
+            const content = <><AppIcon name={item.icon} /><span>{item.label}</span>{isActive ? <span className={styles.activeDot} /> : null}</>;
+            const className = `${styles.navItem} ${isActive ? styles.navActive : ''}`;
+            return item.href ? (
+              <Link key={item.label} href={item.href} className={className}>{content}</Link>
+            ) : (
+              <button key={item.label} type="button" className={className} disabled title={`${item.label} module coming next`}>
+                {content}
+              </button>
+            );
+          })}
         </nav>
 
         <div className={styles.sidebarBottom}>
@@ -163,28 +181,29 @@ export function DashboardShell({
           </div>
 
           <div className={styles.topbarRight}>
-            {allowTenantSwitch ? <TenantSwitcher /> : null}
-            {!allowTenantSwitch && session.hasPlatformSession() ? (
+            {session.hasPlatformSession() ? (
               <button type="button" className={styles.returnButton} onClick={returnToPlatform}>
                 Return to platform
               </button>
             ) : null}
-            <label className={styles.search}>
-              <AppIcon name="search" />
-              <input type="search" placeholder="Search anything" aria-label="Search workspace" />
-              <kbd>⌘ K</kbd>
-            </label>
             <button type="button" className={styles.iconButton} aria-label="Notifications">
               <AppIcon name="bell" />
               <span className={styles.notificationDot} />
             </button>
-            <div className={styles.profile}>
-              <span className={styles.avatar}>{initials}</span>
-              <span className={styles.profileCopy}>
-                <strong>{displayName}</strong>
-                <small>{roleLabel}</small>
-              </span>
-              <AppIcon name="chevron-down" />
+            <div className={styles.profileMenu}>
+              <button type="button" className={styles.profile} aria-haspopup="menu" aria-expanded={profileOpen} onClick={() => setProfileOpen((value) => !value)}>
+                <span className={styles.avatar}>{initials}</span>
+                <span className={styles.profileCopy}>
+                  <strong>{displayName}</strong>
+                  <small>{roleLabel}</small>
+                </span>
+                <AppIcon name="chevron-down" />
+              </button>
+              {profileOpen ? <div className={styles.profileDropdown} role="menu">
+                <button type="button" role="menuitem" onClick={openProfile}><AppIcon name="people" /><span>Profile</span></button>
+                <span className={styles.menuDivider} />
+                <button type="button" role="menuitem" className={styles.logoutItem} onClick={logout} disabled={isLoggingOut}><AppIcon name="logout" /><span>{isLoggingOut ? 'Logging out…' : 'Log out'}</span></button>
+              </div> : null}
             </div>
           </div>
         </header>

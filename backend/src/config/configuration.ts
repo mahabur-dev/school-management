@@ -13,6 +13,7 @@ export default () => {
       env: env.NODE_ENV,
       isProduction: env.NODE_ENV === 'production',
       name: env.APP_NAME,
+      webUrl: env.APP_WEB_URL.replace(/\/$/, ''),
       port: env.PORT,
       apiPrefix: env.API_PREFIX,
       throttleDisabled: env.THROTTLE_DISABLED,

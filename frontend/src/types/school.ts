@@ -13,8 +13,9 @@ export type CreateSchoolInput = {
   name: string;
   slug: string;
   adminEmail: string;
-  adminFirstName: string;
-  adminLastName: string;
+  adminPassword: string;
+  adminFirstName?: string;
+  adminLastName?: string;
   adminPhoneNumber?: string;
 };
 
@@ -26,6 +27,5 @@ export type CreateSchoolResponse = {
     firstName: string;
     lastName: string;
   };
-  /** Show once in the future super-admin UI; never persist it in the browser. */
-  temporaryPassword: string;
+  invitationEmailSent: boolean;
 };

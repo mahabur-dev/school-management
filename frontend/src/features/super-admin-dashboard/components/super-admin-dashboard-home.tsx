@@ -1,32 +1,35 @@
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { AppIcon } from '@/components/ui/app-icon';
+import { schoolsApi } from '@/features/schools/api';
+import { session } from '@/lib/auth/session';
+import type { School } from '@/types/school';
 import {
   featureAdoption,
   platformActivity,
   platformMetrics,
-  recentSchools,
 } from '../super-admin-dashboard-data';
 import styles from './super-admin-dashboard-home.module.css';
 
 export function SuperAdminDashboardHome() {
+  const [recentSchools, setRecentSchools] = useState<School[]>([]);
+  const [schoolsLoading, setSchoolsLoading] = useState(true);
+  const [schoolsError, setSchoolsError] = useState(false);
+
+  useEffect(() => {
+    const accessToken = session.get()?.accessToken;
+    if (!accessToken) return;
+    schoolsApi
+      .list(accessToken, '?page=1&limit=5')
+      .then((response) => setRecentSchools(response.items))
+      .catch(() => setSchoolsError(true))
+      .finally(() => setSchoolsLoading(false));
+  }, []);
+
   return (
     <main className={styles.dashboard}>
-      <header className={styles.pageHeader}>
-        <div>
-          <span className={styles.eyebrow}>Platform intelligence</span>
-          <h1>Overview</h1>
-          <p>Monitor every school, user and feature from one place.</p>
-        </div>
-        <button
-          type="button"
-          className={styles.createButton}
-          disabled
-          title="School creation form will be connected from the Schools module"
-        >
-          <AppIcon name="plus" />
-          <span>Create school</span>
-        </button>
-      </header>
-
       <section className={styles.metricsGrid} aria-label="Platform metrics">
         {platformMetrics.map((metric) => (
           <article
@@ -85,20 +88,25 @@ export function SuperAdminDashboardHome() {
           </section>
 
           <section className={`${styles.panel} ${styles.schoolsPanel}`}>
-            <PanelHeader title="Recently added schools" subtitle="Latest tenant workspaces on the platform" action="View all schools" />
+            <header className={styles.panelHeader}>
+              <div><h2>Recently added schools</h2><p>Latest tenant workspaces on the platform</p></div>
+              <Link href="/super-admin/schools" className={styles.panelLink}>View all schools</Link>
+            </header>
             <div className={styles.tableWrap}>
               <table>
-                <thead><tr><th>School</th><th>Administrator</th><th>Users</th><th>Status</th><th aria-label="Actions" /></tr></thead>
+                <thead><tr><th>School</th><th>Workspace URL</th><th>Status</th><th>Created</th></tr></thead>
                 <tbody>
                   {recentSchools.map((school) => (
                     <tr key={school.slug}>
-                      <td><span className={`${styles.schoolLogo} ${styles[school.tone]}`}>{school.initials}</span><span><strong>{school.name}</strong><small>{school.slug}.schoolsaas.app</small></span></td>
-                      <td>{school.admin}</td>
-                      <td>{school.users}</td>
-                      <td><span className={`${styles.status} ${school.status === 'Active' ? styles.statusActive : styles.statusPending}`}>{school.status}</span></td>
-                      <td><button type="button" disabled aria-label={`Open ${school.name}`}>•••</button></td>
+                      <td><span className={styles.schoolLogo}>{school.name.slice(0, 2).toUpperCase()}</span><span><strong>{school.name}</strong><small>{school.slug}</small></span></td>
+                      <td><span className={styles.workspaceUrl}>/login/{school.slug}</span></td>
+                      <td><span className={`${styles.status} ${school.status === 'ACTIVE' ? styles.statusActive : styles.statusPending}`}>{school.status === 'ACTIVE' ? 'Active' : 'Suspended'}</span></td>
+                      <td>{new Intl.DateTimeFormat('en', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(school.createdAt))}</td>
                     </tr>
                   ))}
+                  {schoolsLoading ? <SchoolRowsSkeleton /> : null}
+                  {!schoolsLoading && schoolsError ? <tr><td colSpan={4} className={styles.tableEmpty}>School workspaces could not be loaded.</td></tr> : null}
+                  {!schoolsLoading && !schoolsError && recentSchools.length === 0 ? <tr><td colSpan={4} className={styles.tableEmpty}>No school workspaces have been created yet.</td></tr> : null}
                 </tbody>
               </table>
             </div>
@@ -158,6 +166,10 @@ export function SuperAdminDashboardHome() {
       </div>
     </main>
   );
+}
+
+function SchoolRowsSkeleton() {
+  return <>{Array.from({ length: 4 }, (_, index) => <tr key={index} className={styles.skeletonRow}><td><span className={`${styles.skeleton} ${styles.skeletonAvatar}`} /><span className={`${styles.skeleton} ${styles.skeletonName}`} /></td><td><span className={`${styles.skeleton} ${styles.skeletonUrl}`} /></td><td><span className={`${styles.skeleton} ${styles.skeletonStatus}`} /></td><td><span className={`${styles.skeleton} ${styles.skeletonDate}`} /></td></tr>)}</>;
 }
 
 function PanelHeader({

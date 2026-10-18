@@ -1,14 +1,16 @@
 import {
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { SessionMetadata } from '../../common/types/session-metadata.type';
-import { SchoolStatus, UserStatus } from '../../prisma';
+import { SchoolStatus, UserRole, UserStatus } from '../../prisma';
 import { AuthRepository } from './auth.repository';
 import { toUserResponse } from './auth.mapper';
 import { LoginDto } from './dto/login.dto';
+import { ResolveTenantDto } from './dto/resolve-tenant.dto';
 import { PasswordService } from './password.service';
 import { SessionService } from './session.service';
 
@@ -34,6 +36,15 @@ export class AuthService {
     if (!validPassword || user.status !== UserStatus.ACTIVE) {
       throw new UnauthorizedException('Invalid email or password');
     }
+    if (
+      (dto.portal === 'PLATFORM' && user.role !== UserRole.SUPER_ADMIN) ||
+      (dto.portal === 'SCHOOL' &&
+        (user.role !== UserRole.SCHOOL_ADMIN ||
+          !dto.tenantSlug ||
+          user.school?.slug !== dto.tenantSlug))
+    ) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
     if (!user.emailVerifiedAt) {
       throw new ForbiddenException({
         message: 'Email verification is required before login',
@@ -53,8 +64,22 @@ export class AuthService {
     return { user: toUserResponse(user), ...session };
   }
 
-  refresh(refreshToken: string, metadata: SessionMetadata) {
-    return this.sessions.rotate(refreshToken, metadata);
+  async resolveTenant(dto: ResolveTenantDto) {
+    const schools = await this.users.findActiveSchoolsByNameOrSlug(dto.query);
+    if (schools.length === 0) {
+      throw new NotFoundException('School workspace not found');
+    }
+    if (schools.length > 1) {
+      throw new ConflictException(
+        'More than one school has this name. Enter its unique workspace ID.',
+      );
+    }
+    return schools[0];
+  }
+
+  async refresh(refreshToken: string, metadata: SessionMetadata) {
+    const { user, ...tokens } = await this.sessions.rotate(refreshToken, metadata);
+    return { user: toUserResponse(user), ...tokens };
   }
 
   async logout(sessionId: string) {
