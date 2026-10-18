@@ -1,0 +1,133 @@
+// Prisma schema for the multi-tenant school management platform.
+//
+// Tenancy model: one shared database, every tenant-owned table carries a
+// `school_id` column. Rules:
+//   - A model that belongs to a school MUST have `schoolId` and an index on it.
+//   - Register the model name in `TENANT_MODELS`
+//     (src/prisma/tenant-scope.ts) so `prisma.forSchool()` scopes it.
+//   - Super admins have no school (`schoolId = null`); every other role must.
+//     That invariant is enforced in SchoolsService/UsersService.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+
+  @@map("user_status")
+}
+
+enum SchoolStatus {
+  ACTIVE
+  SUSPENDED
+
+  @@map("school_status")
+}
+
+enum AuthTokenType {
+  PASSWORD_RESET
+  PASSWORD_RESET_VERIFIED
+
+  @@map("auth_token_type")
+}
+
+/// Tenant root. Everything a school owns hangs off this row.
+model School {
+  id        String       @id @default(uuid(7)) @db.Uuid
+  name      String       @db.VarChar(150)
+  /// URL-safe unique key; later resolved from the subdomain (dps.example.com).
+  slug      String       @unique @db.VarChar(63)
+  status    SchoolStatus @default(ACTIVE)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  users User[]
+
+  @@map("schools")
+}
+
+model User {
+  id                 String     @id @default(uuid(7)) @db.Uuid
+  /// Null only for SUPER_ADMIN.
+  schoolId           String?    @map("school_id") @db.Uuid
+  email              String     @unique @db.VarChar(254)
+  passwordHash       String     @map("password_hash") @db.VarChar(100)
+  firstName          String     @map("first_name") @db.VarChar(80)
+  lastName           String     @map("last_name") @db.VarChar(80)
+  phoneNumber        String?    @map("phone_number") @db.VarChar(32)
+  role               UserRole
+  status             UserStatus @default(ACTIVE)
+  /// True for accounts created with a temporary password.
+  mustChangePassword Boolean    @default(false) @map("must_change_password")
+  emailVerifiedAt    DateTime?  @map("email_verified_at") @db.Timestamptz(3)
+  lastLoginAt        DateTime?  @map("last_login_at") @db.Timestamptz(3)
+  passwordChangedAt  DateTime?  @map("password_changed_at") @db.Timestamptz(3)
+  createdAt          DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school   School?       @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  sessions AuthSession[]
+  tokens   AuthToken[]
+
+  @@index([schoolId, role])
+  @@index([schoolId, status])
+  @@map("users")
+}
+
+/// One row per issued refresh token. Rotation keeps `familyId` so a reused
+/// (already rotated) token can revoke the whole family.
+model AuthSession {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  familyId         String    @map("family_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.VarChar(64)
+  rememberMe       Boolean   @default(false) @map("remember_me")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  revokeReason     String?   @map("revoke_reason") @db.VarChar(50)
+  userAgent        String?   @map("user_agent") @db.VarChar(512)
+  ipAddress        String?   @map("ip_address") @db.VarChar(64)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("auth_sessions")
+}
+
+/// Hashed one-time codes and short-lived grants (password reset, later OTP).
+model AuthToken {
+  id         String        @id @default(uuid(7)) @db.Uuid
+  userId     String        @map("user_id") @db.Uuid
+  type       AuthTokenType
+  tokenHash  String        @map("token_hash") @db.VarChar(64)
+  expiresAt  DateTime      @map("expires_at") @db.Timestamptz(3)
+  consumedAt DateTime?     @map("consumed_at") @db.Timestamptz(3)
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@index([tokenHash, type])
+  @@map("auth_tokens")
+}
