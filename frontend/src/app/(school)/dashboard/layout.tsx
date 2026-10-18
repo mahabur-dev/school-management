@@ -1,4 +1,5 @@
-/** Shared tenant shell. Its navigation will be built from enabled features. */
+import { SchoolDashboardShell } from '@/components/layout/school-dashboard-shell';
+
 export default function SchoolLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
+  return <SchoolDashboardShell>{children}</SchoolDashboardShell>;
 }

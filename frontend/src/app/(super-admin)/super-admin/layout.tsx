@@ -1,4 +1,5 @@
-/** Shared shell for platform-level users. Visual navigation belongs here later. */
+import { SuperAdminDashboardShell } from '@/components/layout/super-admin-dashboard-shell';
+
 export default function SuperAdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return children;
+  return <SuperAdminDashboardShell>{children}</SuperAdminDashboardShell>;
 }

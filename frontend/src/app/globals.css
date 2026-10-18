@@ -2,8 +2,36 @@
   box-sizing: border-box;
 }
 
+:root {
+  color-scheme: light;
+  font-family:
+    Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-synthesis: none;
+  --brand-blue: #0b73f6;
+  --brand-blue-dark: #0759cc;
+  --brand-amber: #ffc95f;
+  --brand-ink: #15233b;
+  --brand-muted: #6f7d95;
+  --brand-canvas: #eaf2ff;
+}
+
 html,
 body {
   margin: 0;
   min-height: 100%;
+}
+
+body {
+  color: var(--brand-ink);
+  background: #f7faff;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+label {
+  -webkit-tap-highlight-color: transparent;
 }
