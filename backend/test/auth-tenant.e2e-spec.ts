@@ -258,6 +258,150 @@ describe('Auth and tenant isolation (e2e)', () => {
     });
   });
 
+  describe('finance MVP security and transaction flow', () => {
+    let categoryId: string;
+    let studentId: string;
+    let invoiceId: string;
+    let paymentId: string;
+
+    it('blocks finance while the school feature is disabled', async () => {
+      await http
+        .get('/api/v1/finance/invoices')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .expect(403);
+    });
+
+    it('enables finance through the platform permission API', async () => {
+      await http
+        .patch(
+          `/api/v1/super-admin/schools/${schoolA.id}/features/fee_management`,
+        )
+        .set('Authorization', `Bearer ${superToken}`)
+        .send({ enabled: true })
+        .expect(200);
+      await http
+        .patch(
+          `/api/v1/super-admin/schools/${schoolB.id}/features/fee_management`,
+        )
+        .set('Authorization', `Bearer ${superToken}`)
+        .send({ enabled: true })
+        .expect(200);
+
+      await http
+        .get('/api/v1/finance/invoices')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .expect(200);
+      await http
+        .get('/api/v1/finance/invoices')
+        .set('Authorization', `Bearer ${superToken}`)
+        .expect(403);
+    });
+
+    it('creates and issues a tenant-owned invoice', async () => {
+      const category = await http
+        .post('/api/v1/finance/fee-categories')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .send({ code: 'TUITION', name: 'Monthly tuition' })
+        .expect(201);
+      categoryId = (category.body as Unwrapped).data.id;
+
+      const student = await http
+        .post('/api/v1/students')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .send({ name: 'Finance Student', className: 'Eight', rollNo: 'F-1' })
+        .expect(201);
+      studentId = (student.body as Unwrapped).data.id;
+
+      const invoice = await http
+        .post('/api/v1/finance/invoices')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .send({
+          studentId,
+          academicYear: '2026',
+          dueDate: '2026-10-31',
+          items: [
+            {
+              feeCategoryId: categoryId,
+              description: 'October tuition',
+              quantity: 1,
+              unitAmountMinor: '40000',
+            },
+          ],
+        })
+        .expect(201);
+      invoiceId = (invoice.body as Unwrapped).data.id;
+
+      await http
+        .post(`/api/v1/finance/invoices/${invoiceId}/issue`)
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .expect(201);
+    });
+
+    it('hides invoices and rejects allocations across schools', async () => {
+      await http
+        .get(`/api/v1/finance/invoices/${invoiceId}`)
+        .set('Authorization', `Bearer ${schoolB.token}`)
+        .expect(404);
+
+      await http
+        .post('/api/v1/finance/payments')
+        .set('Authorization', `Bearer ${schoolB.token}`)
+        .set('Idempotency-Key', 'cross-tenant-payment')
+        .send({
+          amountMinor: '10000',
+          paymentMethod: 'CASH',
+          receivedOn: '2026-10-19',
+          allocations: [{ invoiceId, amountMinor: '10000' }],
+        })
+        .expect(404);
+    });
+
+    it('records one partial payment for identical retries', async () => {
+      const payload = {
+        amountMinor: '10000',
+        paymentMethod: 'CASH',
+        receivedOn: '2026-10-19',
+        allocations: [{ invoiceId, amountMinor: '10000' }],
+      };
+      const first = await http
+        .post('/api/v1/finance/payments')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .set('Idempotency-Key', 'partial-payment-1')
+        .send(payload)
+        .expect(201);
+      paymentId = (first.body as Unwrapped).data.id;
+
+      const retry = await http
+        .post('/api/v1/finance/payments')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .set('Idempotency-Key', 'partial-payment-1')
+        .send(payload)
+        .expect(201);
+      expect((retry.body as Unwrapped).data.id).toBe(paymentId);
+
+      await http
+        .post('/api/v1/finance/payments')
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .set('Idempotency-Key', 'partial-payment-1')
+        .send({
+          ...payload,
+          amountMinor: '11000',
+          allocations: [{ invoiceId, amountMinor: '11000' }],
+        })
+        .expect(409);
+
+      const balance = await http
+        .get(`/api/v1/finance/invoices/${invoiceId}/balance`)
+        .set('Authorization', `Bearer ${schoolA.token}`)
+        .expect(200);
+      expect((balance.body as Unwrapped).data).toMatchObject({
+        paidMinor: '10000',
+        outstandingMinor: '30000',
+        paymentStatus: 'PARTIALLY_PAID',
+      });
+    });
+  });
+
   describe('refresh token rotation', () => {
     it('rotates once and revokes the family on reuse', async () => {
       const first = await login(schoolB.email, schoolB.password).expect(200);

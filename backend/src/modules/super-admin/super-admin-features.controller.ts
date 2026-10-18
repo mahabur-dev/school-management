@@ -44,6 +44,15 @@ export class SuperAdminFeaturesController {
     );
   }
 
+  @Get('schools/:id/features/:key')
+  async getFeatureState(
+    @Param('id', ParseUUIDPipe) schoolId: string,
+    @Param('key') key: string,
+  ) {
+    await this.schools.getById(schoolId);
+    return this.features.getSchoolFeatureState(schoolId, parseFeatureKey(key));
+  }
+
   @Get('schools/:id/features/:key/fields')
   async getFieldConfiguration(
     @Param('id', ParseUUIDPipe) schoolId: string,

@@ -78,7 +78,10 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string, metadata: SessionMetadata) {
-    const { user, ...tokens } = await this.sessions.rotate(refreshToken, metadata);
+    const { user, ...tokens } = await this.sessions.rotate(
+      refreshToken,
+      metadata,
+    );
     return { user: toUserResponse(user), ...tokens };
   }
 

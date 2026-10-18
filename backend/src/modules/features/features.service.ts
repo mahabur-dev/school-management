@@ -1,11 +1,16 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { FeatureKey } from '../../prisma';
 import { FeaturesRepository } from './features.repository';
-import { toFeatureKeyValue } from './feature-key';
+import {
+  getFeatureDependencies,
+  getFeatureDependents,
+  toFeatureKeyValue,
+} from './feature-key';
 import { UpdateSchoolFeatureFieldDto } from './dto/update-school-feature-fields.dto';
 
 @Injectable()
@@ -13,14 +18,12 @@ export class FeaturesService {
   constructor(private readonly repository: FeaturesRepository) {}
 
   listCatalogue() {
-    return this.repository
-      .listCatalogue()
-      .then((features) =>
-        features.map(({ key, ...feature }) => ({
-          ...feature,
-          key: toFeatureKeyValue(key),
-        })),
-      );
+    return this.repository.listCatalogue().then((features) =>
+      features.map(({ key, ...feature }) => ({
+        ...feature,
+        key: toFeatureKeyValue(key),
+      })),
+    );
   }
 
   async ensureFeatureExists(key: FeatureKey) {
@@ -73,13 +76,49 @@ export class FeaturesService {
     }));
   }
 
+  /** Super-admin read model for the feature switch before editing its fields. */
+  async getSchoolFeatureState(schoolId: string, key: FeatureKey) {
+    await this.ensureFeatureExists(key);
+    const setting = await this.repository.findSchoolFeature(schoolId, key);
+    return { enabled: setting?.enabled ?? false };
+  }
+
   async setSchoolFeatureEnabled(
     schoolId: string,
     key: FeatureKey,
     enabled: boolean,
   ) {
     const feature = await this.ensureFeatureExists(key);
+    if (enabled) await this.assertDependenciesEnabled(schoolId, key);
+    else await this.assertNoEnabledDependents(schoolId, key);
     return this.repository.upsertSchoolFeature(schoolId, feature.id, enabled);
+  }
+
+  private async assertDependenciesEnabled(schoolId: string, key: FeatureKey) {
+    const dependencies = getFeatureDependencies(key);
+    const enabled = await this.repository.findEnabledFeaturesByKeys(
+      schoolId,
+      dependencies,
+    );
+    const enabledKeys = new Set(enabled.map(({ feature }) => feature.key));
+    const missing = dependencies.filter(
+      (dependency) => !enabledKeys.has(dependency),
+    );
+    if (missing.length === 0) return;
+    throw new ConflictException(
+      `${toFeatureKeyValue(key)} requires ${missing.map(toFeatureKeyValue).join(', ')} to be enabled`,
+    );
+  }
+
+  private async assertNoEnabledDependents(schoolId: string, key: FeatureKey) {
+    const dependents = await this.repository.findEnabledFeaturesByKeys(
+      schoolId,
+      getFeatureDependents(key),
+    );
+    if (dependents.length === 0) return;
+    throw new ConflictException(
+      `Disable ${dependents.map(({ feature }) => toFeatureKeyValue(feature.key)).join(', ')} before disabling ${toFeatureKeyValue(key)}`,
+    );
   }
 
   async updateSchoolFieldConfiguration(

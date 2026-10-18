@@ -1,0 +1,78 @@
+.root {
+  width: min(100%, 270px);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 11px;
+  border: 1px solid #d5e0ec;
+  border-radius: 11px;
+  color: #72839a;
+  background: #fff;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.root:focus-within {
+  border-color: #0b73f6;
+  box-shadow: 0 0 0 4px rgba(11, 115, 246, 0.1);
+}
+
+.root > svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
+.root input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: #26384f;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+}
+
+.root input::placeholder {
+  color: #8b99aa;
+}
+
+.root input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.root button {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #718198;
+  background: #eff4fa;
+  cursor: pointer;
+}
+
+.root button:hover {
+  color: #3b4d64;
+  background: #e3eaf3;
+}
+
+.root button svg {
+  width: 13px;
+  height: 13px;
+}

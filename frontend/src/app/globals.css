@@ -21,6 +21,13 @@ body {
   min-height: 100%;
 }
 
+html {
+  /* Keep the application shell width stable when page/tab content changes
+     between scrollable and non-scrollable states. */
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 body {
   color: var(--brand-ink);
   background: #f7faff;

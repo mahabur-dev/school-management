@@ -1,0 +1,233 @@
+/// Tenant-owned defaults for the Finance module. Amounts are always persisted
+/// in minor units by future transaction models; this table holds display and
+/// document-number configuration only.
+model FinanceSetting {
+  schoolId      String   @id @map("school_id") @db.Uuid
+  currency      String   @default("BDT") @db.Char(3)
+  invoicePrefix String   @default("INV") @map("invoice_prefix") @db.VarChar(20)
+  paymentPrefix String   @default("PAY") @map("payment_prefix") @db.VarChar(20)
+  timezone      String   @default("Asia/Dhaka") @db.VarChar(64)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+
+  @@map("finance_settings")
+}
+
+/// A school-owned charge category, such as tuition, transport, or examination.
+/// Categories are deactivated instead of deleted once referenced by a policy.
+model FeeCategory {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  schoolId    String   @map("school_id") @db.Uuid
+  code        String   @db.VarChar(50)
+  name        String   @db.VarChar(150)
+  description String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school         School             @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  structureItems FeeStructureItem[]
+  invoiceItems   InvoiceItem[]
+
+  @@unique([schoolId, id])
+  @@unique([schoolId, code])
+  @@index([schoolId, isActive])
+  @@map("fee_categories")
+}
+
+/// A versionable class-specific fee policy. Only draft structures are mutable;
+/// activation freezes its items so historic future invoices remain reproducible.
+model FeeStructure {
+  id               String              @id @default(uuid(7)) @db.Uuid
+  schoolId         String              @map("school_id") @db.Uuid
+  name             String              @db.VarChar(150)
+  className        String              @map("class_name") @db.VarChar(80)
+  academicYear     String              @map("academic_year") @db.VarChar(30)
+  billingFrequency FeeBillingFrequency @map("billing_frequency")
+  effectiveFrom    DateTime            @map("effective_from") @db.Date
+  effectiveUntil   DateTime?           @map("effective_until") @db.Date
+  status           FeeStructureStatus  @default(DRAFT)
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school   School             @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  items    FeeStructureItem[]
+  invoices Invoice[]
+
+  @@unique([schoolId, id])
+  @@index([schoolId, status])
+  @@index([schoolId, className, academicYear])
+  @@map("fee_structures")
+}
+
+/// A frozen-at-activation charge in a fee policy. Values are minor currency
+/// units, never JavaScript floating-point amounts.
+model FeeStructureItem {
+  id             String   @id @default(uuid(7)) @db.Uuid
+  schoolId       String   @map("school_id") @db.Uuid
+  feeStructureId String   @map("fee_structure_id") @db.Uuid
+  feeCategoryId  String   @map("fee_category_id") @db.Uuid
+  description    String?  @db.Text
+  amountMinor    BigInt   @map("amount_minor") @db.BigInt
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school       School       @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  feeStructure FeeStructure @relation(fields: [schoolId, feeStructureId], references: [schoolId, id], onDelete: Restrict)
+  feeCategory  FeeCategory  @relation(fields: [schoolId, feeCategoryId], references: [schoolId, id], onDelete: Restrict)
+
+  @@unique([schoolId, id])
+  @@unique([schoolId, feeStructureId, feeCategoryId])
+  @@index([schoolId, feeCategoryId])
+  @@map("fee_structure_items")
+}
+
+/// Per-school, per-calendar-year counter. It is incremented atomically only
+/// while issuing an invoice, never while creating an editable draft.
+model InvoiceSequence {
+  schoolId   String   @map("school_id") @db.Uuid
+  year       Int
+  nextNumber Int      @default(1) @map("next_number")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+
+  @@id([schoolId, year])
+  @@map("invoice_sequences")
+}
+
+/// Invoice totals and snapshots become immutable once status moves from DRAFT
+/// to ISSUED. Payment-related balances arrive in Phase 4.
+model Invoice {
+  id                  String        @id @default(uuid(7)) @db.Uuid
+  schoolId            String        @map("school_id") @db.Uuid
+  studentId           String        @map("student_id") @db.Uuid
+  feeStructureId      String?       @map("fee_structure_id") @db.Uuid
+  invoiceNumber       String?       @map("invoice_number") @db.VarChar(60)
+  academicYear        String        @map("academic_year") @db.VarChar(30)
+  billingPeriod       DateTime?     @map("billing_period") @db.Date
+  studentNameSnapshot String?       @map("student_name_snapshot") @db.VarChar(200)
+  classNameSnapshot   String?       @map("class_name_snapshot") @db.VarChar(100)
+  issueDate           DateTime?     @map("issue_date") @db.Date
+  dueDate             DateTime      @map("due_date") @db.Date
+  currency            String        @default("BDT") @db.Char(3)
+  subtotalMinor       BigInt        @default(0) @map("subtotal_minor") @db.BigInt
+  discountMinor       BigInt        @default(0) @map("discount_minor") @db.BigInt
+  totalMinor          BigInt        @default(0) @map("total_minor") @db.BigInt
+  status              InvoiceStatus @default(DRAFT)
+  extraData           Json          @default("{}") @map("extra_data") @db.JsonB
+  createdBy           String        @map("created_by") @db.Uuid
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school             School              @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  student            Student             @relation(fields: [schoolId, studentId], references: [schoolId, id], onDelete: Restrict)
+  feeStructure       FeeStructure?       @relation(fields: [schoolId, feeStructureId], references: [schoolId, id], onDelete: Restrict)
+  creator            User                @relation("invoice_creator", fields: [schoolId, createdBy], references: [schoolId, id], onDelete: Restrict)
+  items              InvoiceItem[]
+  paymentAllocations PaymentAllocation[]
+
+  @@unique([schoolId, id])
+  @@unique([schoolId, invoiceNumber])
+  @@index([schoolId, studentId])
+  @@index([schoolId, status])
+  @@index([schoolId, dueDate])
+  @@index([schoolId, billingPeriod])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id              String   @id @default(uuid(7)) @db.Uuid
+  schoolId        String   @map("school_id") @db.Uuid
+  invoiceId       String   @map("invoice_id") @db.Uuid
+  feeCategoryId   String   @map("fee_category_id") @db.Uuid
+  description     String   @db.Text
+  quantity        Int      @default(1)
+  unitAmountMinor BigInt   @map("unit_amount_minor") @db.BigInt
+  lineTotalMinor  BigInt   @map("line_total_minor") @db.BigInt
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school      School      @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  invoice     Invoice     @relation(fields: [schoolId, invoiceId], references: [schoolId, id], onDelete: Restrict)
+  feeCategory FeeCategory @relation(fields: [schoolId, feeCategoryId], references: [schoolId, id], onDelete: Restrict)
+
+  @@unique([schoolId, id])
+  @@index([schoolId, feeCategoryId])
+  @@map("invoice_items")
+}
+
+model PaymentSequence {
+  schoolId   String   @map("school_id") @db.Uuid
+  year       Int
+  nextNumber Int      @default(1) @map("next_number")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  school     School   @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+
+  @@id([schoolId, year])
+  @@map("payment_sequences")
+}
+
+model Payment {
+  id              String              @id @default(uuid(7)) @db.Uuid
+  schoolId        String              @map("school_id") @db.Uuid
+  paymentNumber   String              @map("payment_number") @db.VarChar(60)
+  amountMinor     BigInt              @map("amount_minor") @db.BigInt
+  currency        String              @default("BDT") @db.Char(3)
+  paymentMethod   PaymentMethod       @map("payment_method")
+  referenceNumber String?             @map("reference_number") @db.VarChar(150)
+  receivedOn      DateTime            @map("received_on") @db.Date
+  status          PaymentStatus       @default(POSTED)
+  idempotencyKey  String?             @map("idempotency_key") @db.VarChar(150)
+  requestHash     String?             @map("request_hash") @db.Char(64)
+  extraData       Json                @default("{}") @map("extra_data") @db.JsonB
+  recordedBy      String              @map("recorded_by") @db.Uuid
+  createdAt       DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  school          School              @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  recorder        User                @relation("payment_recorder", fields: [schoolId, recordedBy], references: [schoolId, id], onDelete: Restrict)
+  allocations     PaymentAllocation[]
+  reversal        PaymentReversal?
+
+  @@unique([schoolId, id])
+  @@unique([schoolId, paymentNumber])
+  @@index([schoolId, receivedOn])
+  @@map("payments")
+}
+
+model PaymentAllocation {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  schoolId    String   @map("school_id") @db.Uuid
+  paymentId   String   @map("payment_id") @db.Uuid
+  invoiceId   String   @map("invoice_id") @db.Uuid
+  amountMinor BigInt   @map("amount_minor") @db.BigInt
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  school      School   @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  payment     Payment  @relation(fields: [schoolId, paymentId], references: [schoolId, id], onDelete: Restrict)
+  invoice     Invoice  @relation(fields: [schoolId, invoiceId], references: [schoolId, id], onDelete: Restrict)
+
+  @@unique([schoolId, id])
+  @@unique([schoolId, paymentId, invoiceId])
+  @@index([schoolId, invoiceId])
+  @@index([schoolId, paymentId])
+  @@map("payment_allocations")
+}
+
+model PaymentReversal {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  schoolId   String   @map("school_id") @db.Uuid
+  paymentId  String   @map("payment_id") @db.Uuid
+  reason     String   @db.Text
+  reversedBy String   @map("reversed_by") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  school     School   @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  payment    Payment  @relation(fields: [schoolId, paymentId], references: [schoolId, id], onDelete: Restrict)
+  reverser   User     @relation("payment_reverser", fields: [schoolId, reversedBy], references: [schoolId, id], onDelete: Restrict)
+
+  @@unique([schoolId, id])
+  @@unique([schoolId, paymentId])
+  @@map("payment_reversals")
+}

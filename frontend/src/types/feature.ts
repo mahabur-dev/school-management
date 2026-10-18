@@ -1,4 +1,4 @@
-export type FeatureKey = 'student_management';
+export type FeatureKey = "student_management" | "fee_management";
 
 export type EnabledFeature = {
   key: FeatureKey;
@@ -8,7 +8,7 @@ export type EnabledFeature = {
 export type ConfiguredField = {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'date' | 'select';
+  type: "text" | "number" | "date" | "select";
   enabled: boolean;
   required: boolean;
   isCore: boolean;

@@ -52,10 +52,162 @@ export const STUDENT_MANAGEMENT_FIELDS = [
   },
 ] as const;
 
+/**
+ * Finance fields are registered before finance transactions exist so a super
+ * admin can configure the policy once and every later finance form shares the
+ * same field contract. Accounting-critical inputs stay locked as core fields.
+ */
+export const FEE_MANAGEMENT_FIELDS = [
+  {
+    key: 'invoice_student_id',
+    label: 'Student',
+    type: FeatureFieldType.TEXT,
+    isCore: true,
+    sortOrder: 10,
+  },
+  {
+    key: 'invoice_due_date',
+    label: 'Due date',
+    type: FeatureFieldType.DATE,
+    isCore: true,
+    sortOrder: 20,
+  },
+  {
+    key: 'invoice_items',
+    label: 'Invoice items',
+    type: FeatureFieldType.TEXT,
+    isCore: true,
+    sortOrder: 30,
+  },
+  {
+    key: 'invoice_currency',
+    label: 'Currency',
+    type: FeatureFieldType.SELECT,
+    isCore: true,
+    sortOrder: 40,
+  },
+  {
+    key: 'invoice_academic_year',
+    label: 'Academic year',
+    type: FeatureFieldType.TEXT,
+    isCore: true,
+    sortOrder: 50,
+  },
+  {
+    key: 'invoice_billing_period',
+    label: 'Billing period',
+    type: FeatureFieldType.DATE,
+    isCore: false,
+    sortOrder: 60,
+  },
+  {
+    key: 'invoice_note',
+    label: 'Invoice note',
+    type: FeatureFieldType.TEXT,
+    isCore: false,
+    sortOrder: 70,
+  },
+  {
+    key: 'invoice_external_reference',
+    label: 'External reference',
+    type: FeatureFieldType.TEXT,
+    isCore: false,
+    sortOrder: 80,
+  },
+  {
+    key: 'invoice_internal_remark',
+    label: 'Internal remark',
+    type: FeatureFieldType.TEXT,
+    isCore: false,
+    sortOrder: 90,
+  },
+  {
+    key: 'payment_amount',
+    label: 'Payment amount',
+    type: FeatureFieldType.NUMBER,
+    isCore: true,
+    sortOrder: 110,
+  },
+  {
+    key: 'payment_method',
+    label: 'Payment method',
+    type: FeatureFieldType.SELECT,
+    isCore: true,
+    sortOrder: 120,
+  },
+  {
+    key: 'payment_received_on',
+    label: 'Received on',
+    type: FeatureFieldType.DATE,
+    isCore: true,
+    sortOrder: 130,
+  },
+  {
+    key: 'payment_allocations',
+    label: 'Payment allocations',
+    type: FeatureFieldType.TEXT,
+    isCore: true,
+    sortOrder: 140,
+  },
+  {
+    key: 'payment_reference',
+    label: 'Payment reference',
+    type: FeatureFieldType.TEXT,
+    isCore: false,
+    sortOrder: 150,
+  },
+  {
+    key: 'payment_note',
+    label: 'Payment note',
+    type: FeatureFieldType.TEXT,
+    isCore: false,
+    sortOrder: 160,
+  },
+  {
+    key: 'payment_received_from',
+    label: 'Received from',
+    type: FeatureFieldType.TEXT,
+    isCore: false,
+    sortOrder: 170,
+  },
+] as const;
+
+type FeatureDefinition = {
+  key: FeatureKey;
+  name: string;
+  description: string;
+  enabledByDefault: boolean;
+  fields: ReadonlyArray<{
+    key: string;
+    label: string;
+    type: FeatureFieldType;
+    isCore: boolean;
+    sortOrder: number;
+  }>;
+};
+
+const FEATURE_DEFINITIONS: readonly FeatureDefinition[] = [
+  {
+    key: FeatureKey.STUDENT_MANAGEMENT,
+    name: 'Student Management',
+    description: 'Manage student records and configurable student fields.',
+    enabledByDefault: true,
+    fields: STUDENT_MANAGEMENT_FIELDS,
+  },
+  {
+    key: FeatureKey.FEE_MANAGEMENT,
+    name: 'Fee & Invoice Management',
+    description:
+      'Manage school fees, invoices, payments, and configurable finance fields.',
+    enabledByDefault: false,
+    fields: FEE_MANAGEMENT_FIELDS,
+  },
+];
+
 type FeatureConfigurationTransaction = Prisma.TransactionClient;
 
 export type FeatureConfigurationBootstrapResult = {
-  featureId: string;
+  featureCount: number;
   fieldCount: number;
   configuredSchoolCount: number;
 };
@@ -74,34 +226,33 @@ export async function bootstrapFeatureConfiguration(
   tx: FeatureConfigurationTransaction,
   schoolIds?: readonly string[],
 ): Promise<FeatureConfigurationBootstrapResult> {
-  const feature = await tx.feature.upsert({
-    where: { key: FeatureKey.STUDENT_MANAGEMENT },
-    update: {
-      name: 'Student Management',
-      description: 'Manage student records and configurable student fields.',
-    },
-    create: {
-      key: FeatureKey.STUDENT_MANAGEMENT,
-      name: 'Student Management',
-      description: 'Manage student records and configurable student fields.',
-    },
-  });
-
-  const fields = await Promise.all(
-    STUDENT_MANAGEMENT_FIELDS.map((field) =>
-      tx.featureField.upsert({
-        where: {
-          featureId_key: { featureId: feature.id, key: field.key },
+  const catalogue = await Promise.all(
+    FEATURE_DEFINITIONS.map(async (definition) => {
+      const feature = await tx.feature.upsert({
+        where: { key: definition.key },
+        update: { name: definition.name, description: definition.description },
+        create: {
+          key: definition.key,
+          name: definition.name,
+          description: definition.description,
         },
-        update: {
-          label: field.label,
-          type: field.type,
-          isCore: field.isCore,
-          sortOrder: field.sortOrder,
-        },
-        create: { ...field, featureId: feature.id },
-      }),
-    ),
+      });
+      const fields = await Promise.all(
+        definition.fields.map((field) =>
+          tx.featureField.upsert({
+            where: { featureId_key: { featureId: feature.id, key: field.key } },
+            update: {
+              label: field.label,
+              type: field.type,
+              isCore: field.isCore,
+              sortOrder: field.sortOrder,
+            },
+            create: { ...field, featureId: feature.id },
+          }),
+        ),
+      );
+      return { definition, feature, fields };
+    }),
   );
 
   const targetSchoolIds = schoolIds
@@ -112,38 +263,57 @@ export async function bootstrapFeatureConfiguration(
 
   if (targetSchoolIds.length === 0) {
     return {
-      featureId: feature.id,
-      fieldCount: fields.length,
+      featureCount: catalogue.length,
+      fieldCount: catalogue.reduce(
+        (count, item) => count + item.fields.length,
+        0,
+      ),
       configuredSchoolCount: 0,
     };
   }
 
   await tx.schoolFeature.createMany({
-    data: targetSchoolIds.map((schoolId) => ({
-      schoolId,
-      featureId: feature.id,
-      // Student Management is available by default for every school.
-      enabled: true,
-    })),
-    skipDuplicates: true,
-  });
-
-  await tx.schoolFeatureField.createMany({
     data: targetSchoolIds.flatMap((schoolId) =>
-      fields.map((field) => ({
+      catalogue.map(({ feature, definition }) => ({
         schoolId,
-        featureFieldId: field.id,
-        enabled: true,
-        // Core values are mandatory and are represented by real student columns.
-        required: field.isCore,
+        featureId: feature.id,
+        enabled: definition.enabledByDefault,
       })),
     ),
     skipDuplicates: true,
   });
 
+  await tx.schoolFeatureField.createMany({
+    data: targetSchoolIds.flatMap((schoolId) =>
+      catalogue.flatMap(({ fields }) =>
+        fields.map((field) => ({
+          schoolId,
+          featureFieldId: field.id,
+          enabled:
+            field.isCore ||
+            ![
+              'invoice_external_reference',
+              'invoice_internal_remark',
+              'payment_received_from',
+            ].includes(field.key),
+          required: field.isCore,
+        })),
+      ),
+    ),
+    skipDuplicates: true,
+  });
+
+  await tx.financeSetting.createMany({
+    data: targetSchoolIds.map((schoolId) => ({ schoolId })),
+    skipDuplicates: true,
+  });
+
   return {
-    featureId: feature.id,
-    fieldCount: fields.length,
+    featureCount: catalogue.length,
+    fieldCount: catalogue.reduce(
+      (count, item) => count + item.fields.length,
+      0,
+    ),
     configuredSchoolCount: targetSchoolIds.length,
   };
 }

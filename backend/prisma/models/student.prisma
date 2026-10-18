@@ -11,8 +11,10 @@ model Student {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  school School @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  school   School    @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  invoices Invoice[]
 
+  @@unique([schoolId, id])
   @@index([schoolId, className])
   @@index([schoolId, deletedAt])
   @@map("students")

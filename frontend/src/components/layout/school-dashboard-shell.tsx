@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { AppIcon, type AppIconName } from "@/components/ui/app-icon";
 import { authApi } from "@/features/auth/api";
+import { featuresApi } from "@/features/features/api";
 import { session } from "@/lib/auth/session";
 import styles from "./school-dashboard-shell.module.css";
 
@@ -13,6 +14,7 @@ export type DashboardNavigationItem = {
   icon: AppIconName;
   active?: boolean;
   href?: string;
+  children?: DashboardNavigationItem[];
 };
 
 type DashboardShellProps = {
@@ -32,6 +34,7 @@ type DashboardShellProps = {
 const schoolNavigation: DashboardNavigationItem[] = [
   { label: "Dashboard", icon: "dashboard", href: "/dashboard" },
   { label: "Students", icon: "student", href: "/dashboard/students" },
+  { label: "Finance", icon: "finance", href: "/dashboard/finance" },
   { label: "Teachers", icon: "teacher" },
   { label: "Staff", icon: "staff" },
   { label: "Attendance", icon: "calendar" },
@@ -41,9 +44,24 @@ const schoolNavigation: DashboardNavigationItem[] = [
 ];
 
 export function SchoolDashboardShell({ children }: { children: ReactNode }) {
+  const token = session.get()?.accessToken;
+  const [financeEnabled, setFinanceEnabled] = useState(false);
+  useEffect(() => {
+    if (!token) return;
+    featuresApi
+      .mine(token)
+      .then((features) =>
+        setFinanceEnabled(
+          features.some((feature) => feature.key === "fee_management"),
+        ),
+      )
+      .catch(() => setFinanceEnabled(false));
+  }, [token]);
   return (
     <DashboardShell
-      navigation={schoolNavigation}
+      navigation={schoolNavigation.filter(
+        (item) => item.label !== "Finance" || financeEnabled,
+      )}
       navigationLabel="Workspace"
       workspaceName="Greenfield Academy"
       workspaceMeta="School workspace"
@@ -77,6 +95,9 @@ export function DashboardShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [isLoggingOut, setLoggingOut] = useState(false);
+  const [navigationExpansion, setNavigationExpansion] = useState<
+    Record<string, boolean>
+  >({});
   const user = session.get()?.user;
   const displayName = user
     ? `${user.firstName} ${user.lastName}`
@@ -87,6 +108,13 @@ export function DashboardShell({
   const effectiveWorkspaceName = user?.school?.name ?? workspaceName;
   const effectiveWorkspaceInitial =
     user?.school?.name.charAt(0) ?? workspaceInitial;
+
+  function toggleNavigationGroup(label: string, expanded: boolean) {
+    setNavigationExpansion((current) => ({
+      ...current,
+      [label]: !expanded,
+    }));
+  }
 
   function returnToPlatform() {
     if (!session.restorePlatform()) return;
@@ -145,6 +173,56 @@ export function DashboardShell({
         >
           <span className={styles.navLabel}>{navigationLabel}</span>
           {navigation.map((item) => {
+            if (item.children?.length) {
+              const childActive = item.children.some(
+                (child) => child.href === pathname,
+              );
+              const expanded =
+                navigationExpansion[item.label] ?? childActive;
+              return (
+                <div className={styles.navGroup} key={item.label}>
+                  <button
+                    type="button"
+                    className={`${styles.navItem} ${styles.navGroupToggle} ${childActive ? styles.navActive : ""}`}
+                    aria-expanded={expanded}
+                    onClick={() =>
+                      toggleNavigationGroup(item.label, expanded)
+                    }
+                  >
+                    <AppIcon name={item.icon} />
+                    <span>{item.label}</span>
+                    <AppIcon
+                      className={`${styles.navChevron} ${expanded ? styles.navChevronOpen : ""}`}
+                      name="chevron-down"
+                    />
+                  </button>
+                  {expanded ? (
+                    <div
+                      className={styles.subNavigation}
+                      aria-label={`${item.label} modules`}
+                    >
+                      {item.children.map((child) => {
+                        const isChildActive = child.href === pathname;
+                        return child.href ? (
+                          <Link
+                            key={child.label}
+                            href={child.href}
+                            className={`${styles.subNavItem} ${isChildActive ? styles.subNavActive : ""}`}
+                            aria-current={isChildActive ? "page" : undefined}
+                          >
+                            <AppIcon name={child.icon} />
+                            <span>{child.label}</span>
+                            {isChildActive ? (
+                              <span className={styles.activeDot} />
+                            ) : null}
+                          </Link>
+                        ) : null;
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            }
             const isActive = item.href ? pathname === item.href : item.active;
             const content = (
               <>

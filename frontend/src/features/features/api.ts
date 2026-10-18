@@ -48,6 +48,11 @@ export const featuresApi = {
         body: { enabled },
       },
     ),
+  getSchoolFeature: (accessToken: string, schoolId: string, key: FeatureKey) =>
+    apiRequest<{ enabled: boolean }>(
+      endpoints.superAdmin.schoolFeature(schoolId, key),
+      { accessToken },
+    ),
   getSchoolFields: (accessToken: string, schoolId: string, key: FeatureKey) =>
     apiRequest<ApiConfiguredField[]>(
       endpoints.superAdmin.schoolFeatureFields(schoolId, key),
@@ -79,6 +84,10 @@ export const featuresApi = {
     apiRequest<EnabledFeature[]>(endpoints.features.mine, { accessToken }),
   myStudentFields: (accessToken: string) =>
     apiRequest<ApiConfiguredField[]>(endpoints.features.studentFields, {
+      accessToken,
+    }).then(normalizeFields),
+  myFields: (accessToken: string, key: FeatureKey) =>
+    apiRequest<ApiConfiguredField[]>(endpoints.features.fields(key), {
       accessToken,
     }).then(normalizeFields),
 };

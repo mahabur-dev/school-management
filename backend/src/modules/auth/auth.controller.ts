@@ -52,7 +52,11 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     return this.auth.login(dto, { userAgent, ipAddress }).then((session) => {
-      this.setRefreshCookie(response, session.refreshToken, session.refreshTokenExpiresAt);
+      this.setRefreshCookie(
+        response,
+        session.refreshToken,
+        session.refreshTokenExpiresAt,
+      );
       return withoutRefreshToken(session);
     });
   }
@@ -76,12 +80,19 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const refreshToken = dto.refreshToken ?? readCookie(request, REFRESH_COOKIE);
+    const refreshToken =
+      dto.refreshToken ?? readCookie(request, REFRESH_COOKIE);
     if (!refreshToken) return this.auth.refresh('', { userAgent, ipAddress });
-    return this.auth.refresh(refreshToken, { userAgent, ipAddress }).then((session) => {
-      this.setRefreshCookie(response, session.refreshToken, session.refreshTokenExpiresAt);
-      return withoutRefreshToken(session);
-    });
+    return this.auth
+      .refresh(refreshToken, { userAgent, ipAddress })
+      .then((session) => {
+        this.setRefreshCookie(
+          response,
+          session.refreshToken,
+          session.refreshTokenExpiresAt,
+        );
+        return withoutRefreshToken(session);
+      });
   }
 
   @HttpCode(HttpStatus.OK)
@@ -169,10 +180,16 @@ function readCookie(request: Request, name: string): string | undefined {
   const cookie = request.headers.cookie;
   if (!cookie) return undefined;
   const prefix = `${encodeURIComponent(name)}=`;
-  return cookie.split(';').map((item) => item.trim()).find((item) => item.startsWith(prefix))?.slice(prefix.length);
+  return cookie
+    .split(';')
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(prefix))
+    ?.slice(prefix.length);
 }
 
-function withoutRefreshToken<T extends { refreshToken: string }>(session: T): Omit<T, 'refreshToken'> {
+function withoutRefreshToken<T extends { refreshToken: string }>(
+  session: T,
+): Omit<T, 'refreshToken'> {
   const { refreshToken, ...publicSession } = session;
   void refreshToken;
   return publicSession;

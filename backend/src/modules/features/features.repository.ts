@@ -34,6 +34,14 @@ export class FeaturesRepository {
     });
   }
 
+  findEnabledFeaturesByKeys(schoolId: string, keys: readonly FeatureKey[]) {
+    if (keys.length === 0) return Promise.resolve([]);
+    return this.prisma.schoolFeature.findMany({
+      where: { schoolId, enabled: true, feature: { key: { in: [...keys] } } },
+      select: { feature: { select: { key: true, name: true } } },
+    });
+  }
+
   upsertSchoolFeature(schoolId: string, featureId: string, enabled: boolean) {
     return this.prisma.schoolFeature.upsert({
       where: { schoolId_featureId: { schoolId, featureId } },

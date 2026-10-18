@@ -14,6 +14,17 @@ export const TENANT_MODELS: ReadonlySet<string> = new Set([
   'SchoolFeature',
   'SchoolFeatureField',
   'Student',
+  'FinanceSetting',
+  'FeeCategory',
+  'FeeStructure',
+  'FeeStructureItem',
+  'InvoiceSequence',
+  'Invoice',
+  'InvoiceItem',
+  'PaymentSequence',
+  'Payment',
+  'PaymentAllocation',
+  'PaymentReversal',
 ]);
 
 type Args = Record<string, unknown> | undefined;

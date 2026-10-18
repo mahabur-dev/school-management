@@ -21,8 +21,8 @@ describe('SchoolsRepository', () => {
     const bootstrap = jest
       .spyOn(featureBootstrap, 'bootstrapFeatureConfiguration')
       .mockResolvedValue({
-        featureId: 'feature-students',
-        fieldCount: 6,
+        featureCount: 2,
+        fieldCount: 22,
         configuredSchoolCount: 1,
       });
     const repository = new SchoolsRepository(prisma);

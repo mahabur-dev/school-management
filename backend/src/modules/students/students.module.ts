@@ -12,5 +12,6 @@ import { StudentsService } from './students.service';
     StudentFieldValidationService,
     StudentsService,
   ],
+  exports: [StudentsService],
 })
 export class StudentsModule {}

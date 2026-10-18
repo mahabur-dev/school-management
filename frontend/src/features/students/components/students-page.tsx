@@ -4,8 +4,10 @@ import { FormEvent, useEffect, useState } from "react";
 import { AppIcon } from "@/components/ui/app-icon";
 import { OptionSelect } from "@/components/ui/option-select";
 import { PageHeader } from "@/components/ui/page-header";
+import { SearchInput } from "@/components/ui/search-input";
 import { useToast } from "@/components/ui/toast";
 import { featuresApi } from "@/features/features/api";
+import { StudentFinancePanel } from "@/features/finance/components/student-finance-panel";
 import { ApiError } from "@/lib/api/error";
 import { session } from "@/lib/auth/session";
 import type { ConfiguredField } from "@/types/feature";
@@ -17,7 +19,10 @@ export function StudentsPage() {
   const token = session.get()?.accessToken;
   const [students, setStudents] = useState<Student[]>([]);
   const [fields, setFields] = useState<ConfiguredField[]>([]);
+  const [financeEnabled, setFinanceEnabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [isSearching, setSearching] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
@@ -42,13 +47,12 @@ export function StudentsPage() {
 
   useEffect(() => {
     if (!token) return;
-    Promise.all([
-      studentsApi.list(token, "?page=1&limit=100"),
-      featuresApi.myStudentFields(token),
-    ])
-      .then(([list, configuration]) => {
-        setStudents(list.items);
-        setFields(configuration);
+    Promise.all([featuresApi.myStudentFields(token), featuresApi.mine(token)])
+      .then(([configuredFields, enabledFeatures]) => {
+        setFields(configuredFields);
+        setFinanceEnabled(
+          enabledFeatures.some((feature) => feature.key === "fee_management"),
+        );
       })
       .catch((caught) =>
         setError(
@@ -59,6 +63,38 @@ export function StudentsPage() {
       );
   }, [token]);
 
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      setSearching(true);
+      const query = search.trim();
+      const suffix = query
+        ? `?page=1&limit=100&search=${encodeURIComponent(query)}`
+        : "?page=1&limit=100";
+      studentsApi
+        .list(token, suffix)
+        .then((list) => {
+          if (!cancelled) setStudents(list.items);
+        })
+        .catch((caught) => {
+          if (!cancelled)
+            setError(
+              caught instanceof ApiError
+                ? caught.message
+                : "Students could not be loaded.",
+            );
+        })
+        .finally(() => {
+          if (!cancelled) setSearching(false);
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [search, token]);
+
   return (
     <main className={styles.page}>
       <PageHeader
@@ -66,13 +102,21 @@ export function StudentsPage() {
         title="Students"
         description="Create and manage student records for your school workspace."
         action={
-          <button
-            className={styles.addButton}
-            type="button"
-            onClick={() => setOpen(true)}
-          >
-            <AppIcon name="plus" /> Add student
-          </button>
+          <div className={styles.directoryActions}>
+            <SearchInput
+              label="Search students"
+              onChange={setSearch}
+              placeholder="Search by name or roll number"
+              value={search}
+            />
+            <button
+              className={styles.addButton}
+              type="button"
+              onClick={() => setOpen(true)}
+            >
+              <AppIcon name="plus" /> Add student
+            </button>
+          </div>
         }
       />
       {error ? <p className={styles.error}>{error}</p> : null}
@@ -138,7 +182,11 @@ export function StudentsPage() {
             {!students.length ? (
               <tr>
                 <td colSpan={5} className={styles.empty}>
-                  No student records have been created yet.
+                  {isSearching
+                    ? "Searching student records…"
+                    : search
+                      ? "No students match your search."
+                      : "No student records have been created yet."}
                 </td>
               </tr>
             ) : null}
@@ -175,6 +223,7 @@ export function StudentsPage() {
         <StudentDetailsDialog
           fields={fields}
           student={viewingStudent}
+          financeEnabled={financeEnabled}
           onClose={() => setViewingStudent(null)}
         />
       ) : null}
@@ -426,13 +475,17 @@ function dateParts(value: string): DateParts {
 function StudentDetailsDialog({
   fields,
   student,
+  financeEnabled,
   onClose,
 }: {
   fields: ConfiguredField[];
   student: Student;
+  financeEnabled: boolean;
   onClose: () => void;
 }) {
   const values = toFormValues(student);
+  const token = session.get()?.accessToken;
+  const [activeTab, setActiveTab] = useState<"profile" | "finance">("profile");
   return (
     <div className={styles.backdrop}>
       <section
@@ -449,16 +502,40 @@ function StudentDetailsDialog({
             <AppIcon name="x" />
           </button>
         </header>
-        <dl className={styles.detailsList}>
-          {fields
-            .filter((field) => field.enabled)
-            .map((field) => (
-              <div key={field.key}>
-                <dt>{field.label}</dt>
-                <dd>{formatFieldValue(values[field.key], field.type)}</dd>
-              </div>
-            ))}
-        </dl>
+        <nav className={styles.detailsTabs} aria-label="Student details sections">
+          <button
+            className={activeTab === "profile" ? styles.detailsTabActive : ""}
+            onClick={() => setActiveTab("profile")}
+            type="button"
+          >
+            Student profile
+          </button>
+          {financeEnabled ? (
+            <button
+              className={activeTab === "finance" ? styles.detailsTabActive : ""}
+              onClick={() => setActiveTab("finance")}
+              type="button"
+            >
+              Finance
+            </button>
+          ) : null}
+        </nav>
+        {activeTab === "profile" ? (
+          <dl className={styles.detailsList}>
+            {fields
+              .filter((field) => field.enabled)
+              .map((field) => (
+                <div key={field.key}>
+                  <dt>{field.label}</dt>
+                  <dd>{formatFieldValue(values[field.key], field.type)}</dd>
+                </div>
+              ))}
+          </dl>
+        ) : token ? (
+          <StudentFinancePanel accessToken={token} studentId={student.id} />
+        ) : (
+          <p className={styles.error}>Your session is no longer available.</p>
+        )}
         <footer>
           <button onClick={onClose} type="button">
             Close
