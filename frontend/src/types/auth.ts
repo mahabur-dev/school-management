@@ -8,6 +8,12 @@ export type CurrentUser = {
   role: UserRole;
   schoolId: string | null;
   mustChangePassword: boolean;
+  school: {
+    id: string;
+    name: string;
+    slug: string;
+    status: 'ACTIVE' | 'SUSPENDED';
+  } | null;
 };
 
 export type AuthSession = {

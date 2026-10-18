@@ -5,6 +5,7 @@ import type { AuthSession } from '@/types/auth';
  * Replace this boundary with secure httpOnly cookies when the API supports it.
  */
 let currentSession: AuthSession | null = null;
+let platformSession: AuthSession | null = null;
 
 export const session = {
   get: () => currentSession,
@@ -13,5 +14,17 @@ export const session = {
   },
   clear: () => {
     currentSession = null;
+    platformSession = null;
+  },
+  enterTenant: (value: AuthSession) => {
+    if (currentSession?.user.role === 'SUPER_ADMIN') platformSession = currentSession;
+    currentSession = value;
+  },
+  hasPlatformSession: () => platformSession !== null,
+  restorePlatform: () => {
+    if (!platformSession) return null;
+    currentSession = platformSession;
+    platformSession = null;
+    return currentSession;
   },
 };

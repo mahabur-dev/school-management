@@ -28,5 +28,19 @@ export async function apiRequest<T>(
   if (!response.ok) throw await ApiError.fromResponse(response);
   if (response.status === 204) return undefined as T;
 
-  return (await response.json()) as T;
+  const payload = (await response.json()) as
+    | { success: true; data: T }
+    | T;
+
+  if (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'success' in payload &&
+    payload.success === true &&
+    'data' in payload
+  ) {
+    return payload.data;
+  }
+
+  return payload as T;
 }

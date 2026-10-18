@@ -1,6 +1,7 @@
 export const endpoints = {
   auth: {
     login: '/auth/login',
+    resolveTenant: '/auth/resolve-tenant',
     refresh: '/auth/refresh',
     logout: '/auth/logout',
     me: '/auth/me',
