@@ -1,0 +1,442 @@
+.page {
+  max-width: 1450px;
+  margin: 0 auto;
+}
+.addButton,
+.dialog footer button:last-child {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, #0b78fa, #0862dd);
+  box-shadow: 0 10px 22px rgba(11, 105, 229, 0.2);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.addButton svg {
+  width: 17px;
+  height: 17px;
+}
+.card {
+  padding: 22px;
+  border: 1px solid #dce5f0;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(28, 56, 97, 0.06);
+  overflow: auto;
+}
+.card table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+.card th {
+  padding: 11px 12px;
+  color: #5e6f86;
+  background: #f3f7fc;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+.card td {
+  padding: 15px 12px;
+  border-bottom: 1px solid #e7edf4;
+  color: #52647b;
+  font-size: 11px;
+}
+.card tr:last-child td {
+  border-bottom: 0;
+}
+.card td strong {
+  color: #1d2c43;
+  font-size: 12px;
+}
+.actionsHeading {
+  width: 118px;
+  text-align: right !important;
+}
+.rowActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.rowActions button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #f4f7fb;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.rowActions button svg {
+  width: 14px;
+  height: 14px;
+}
+.viewAction {
+  color: #58718f;
+}
+.viewAction:hover,
+.viewAction:focus-visible {
+  border-color: #c7d9ed;
+  outline: 0;
+  color: #0969d9;
+  background: #ecf5ff;
+}
+.editAction {
+  color: #56708d;
+}
+.editAction:hover,
+.editAction:focus-visible {
+  border-color: #bdddff;
+  outline: 0;
+  color: #0870ed;
+  background: #eaf4ff;
+}
+.deleteAction {
+  color: #76869a;
+}
+.deleteAction:hover,
+.deleteAction:focus-visible {
+  border-color: #ffd3d3;
+  outline: 0;
+  color: #cb3333;
+  background: #fff1f1;
+}
+.empty {
+  padding: 38px 12px !important;
+  color: #718198 !important;
+  text-align: center;
+}
+.error {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid #ffd3d3;
+  border-radius: 10px;
+  color: #a12c2c;
+  background: #fff4f4;
+  font-size: 11px;
+}
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(12, 29, 59, 0.48);
+  backdrop-filter: blur(4px);
+}
+.dialog {
+  width: min(100%, 540px);
+  max-height: calc(100svh - 44px);
+  display: grid;
+  gap: 15px;
+  overflow: auto;
+  padding: 26px;
+  border: 1px solid #dbe5f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(16, 40, 78, 0.28);
+}
+.dialog header,
+.dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dialog header {
+  margin-bottom: 5px;
+}
+.dialog header > div > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #0870ed;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dialog h2 {
+  margin: 0;
+  color: #17253d;
+  font-size: 25px;
+  letter-spacing: -0.035em;
+}
+.dialog header > button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  color: #64758c;
+  background: #f4f7fb;
+  cursor: pointer;
+}
+.dialog header > button svg {
+  width: 17px;
+  height: 17px;
+}
+.dialog label {
+  display: grid;
+  gap: 7px;
+  color: #26364d;
+  font-size: 12px;
+  font-weight: 750;
+}
+.dialog input {
+  width: 100%;
+  height: 44px;
+  padding: 0 13px;
+  border: 1px solid #d5e0ec;
+  border-radius: 10px;
+  outline: 0;
+  color: #17253d;
+  background: #fbfdff;
+  font: inherit;
+  font-size: 12px;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.dialog input:focus {
+  border-color: #0b73f6;
+  box-shadow: 0 0 0 4px rgba(11, 115, 246, 0.1);
+  background: #fff;
+}
+.dateField {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #26364d;
+}
+.dateField legend {
+  padding: 0;
+  color: #26364d;
+  font-size: 12px;
+  font-weight: 750;
+}
+.dateHint {
+  color: #7b8a9e;
+  font-size: 10px;
+}
+.dateSelects {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(88px, 0.8fr) minmax(
+      105px,
+      0.9fr
+    );
+  gap: 10px;
+  padding-right: 8px;
+}
+.dateSelects label {
+  display: grid;
+  gap: 5px;
+  color: #718198;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+@media (max-width: 480px) {
+  .dateSelects {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dateSelects label:first-child {
+    grid-column: 1 / -1;
+  }
+}
+.dialog footer {
+  justify-content: flex-end;
+  margin-top: 7px;
+}
+.dialog footer button:first-child {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d7e1ed;
+  border-radius: 10px;
+  color: #516278;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.dialog footer button:last-child {
+  height: 42px;
+  box-shadow: none;
+}
+.dialog footer button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.detailsDialog,
+.confirmDialog {
+  width: min(100%, 480px);
+  display: grid;
+  gap: 18px;
+  padding: 26px;
+  border: 1px solid #dbe5f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(16, 40, 78, 0.28);
+}
+.detailsDialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.detailsDialog header > div > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #0870ed;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.detailsDialog h2,
+.confirmDialog h2 {
+  margin: 0;
+  color: #17253d;
+  font-size: 22px;
+  letter-spacing: -0.025em;
+}
+.detailsDialog header > button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  color: #64758c;
+  background: #f4f7fb;
+  cursor: pointer;
+}
+.detailsDialog header > button svg {
+  width: 17px;
+  height: 17px;
+}
+.detailsList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #e1e9f2;
+  border-radius: 12px;
+  background: #e1e9f2;
+}
+.detailsList > div {
+  min-width: 0;
+  padding: 13px;
+  background: #fbfdff;
+}
+.detailsList dt {
+  color: #718198;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.detailsList dd {
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+  color: #273950;
+  font-size: 12px;
+  font-weight: 750;
+}
+.detailsDialog footer,
+.confirmDialog footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+}
+.detailsDialog footer button,
+.confirmDialog footer button {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #d7e1ed;
+  border-radius: 10px;
+  color: #516278;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.detailsDialog footer button:last-child {
+  color: #fff;
+  border-color: #0b73f6;
+  background: #0b73f6;
+}
+.confirmDialog {
+  gap: 13px;
+}
+.deleteIcon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #cf3535;
+  background: #fff0f0;
+}
+.deleteIcon svg {
+  width: 20px;
+  height: 20px;
+}
+.confirmDialog p {
+  margin: 0;
+  color: #66778d;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.confirmDialog p strong {
+  color: #2d3e55;
+}
+.confirmDialog footer {
+  margin-top: 6px;
+}
+.confirmDialog footer button:last-child {
+  border-color: #cf3535;
+  color: #fff;
+  background: #cf3535;
+}
+@media (max-width: 620px) {
+  .card {
+    padding: 16px;
+  }
+  .dialog {
+    padding: 21px 17px;
+  }
+  .dialog footer {
+    flex-direction: column-reverse;
+  }
+  .dialog footer button {
+    width: 100%;
+  }
+  .detailsDialog,
+  .confirmDialog {
+    padding: 21px 17px;
+  }
+}

@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcrypt';
 import { PrismaClient, UserRole } from '../src/generated/prisma/client';
+import { bootstrapFeatureConfiguration } from '../src/modules/features/feature-configuration.bootstrap';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -71,9 +72,20 @@ async function seedDemoSchools() {
   }
 }
 
+/** Seeds the catalogue and backfills configuration for schools created before it. */
+async function seedFeatureConfiguration() {
+  const result = await prisma.$transaction((tx) =>
+    bootstrapFeatureConfiguration(tx),
+  );
+  console.log(
+    `Feature configuration ready: ${result.fieldCount} fields for ${result.configuredSchoolCount} school(s)`,
+  );
+}
+
 async function main() {
   await seedSuperAdmin();
   if (process.env.SEED_DEMO_DATA === 'true') await seedDemoSchools();
+  await seedFeatureConfiguration();
 }
 
 main()

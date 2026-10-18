@@ -1,0 +1,19 @@
+/// Tenant-owned student record. Configurable field values are stored in
+/// `extraData`; core identity and class fields remain indexed columns.
+model Student {
+  id        String    @id @default(uuid(7)) @db.Uuid
+  schoolId  String    @map("school_id") @db.Uuid
+  name      String    @db.VarChar(150)
+  className String    @map("class_name") @db.VarChar(80)
+  rollNo    String    @map("roll_no") @db.VarChar(40)
+  extraData Json      @default("{}") @map("extra_data") @db.JsonB
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school School @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+
+  @@index([schoolId, className])
+  @@index([schoolId, deletedAt])
+  @@map("students")
+}

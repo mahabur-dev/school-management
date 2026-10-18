@@ -28,3 +28,21 @@ enum AuthTokenType {
 
   @@map("auth_token_type")
 }
+
+/// Developer-owned catalogue keys. A school only receives access through its
+/// matching SchoolFeature row.
+enum FeatureKey {
+  STUDENT_MANAGEMENT
+
+  @@map("feature_key")
+}
+
+/// The shape expected for a configurable feature field's value.
+enum FeatureFieldType {
+  TEXT
+  NUMBER
+  DATE
+  SELECT
+
+  @@map("feature_field_type")
+}

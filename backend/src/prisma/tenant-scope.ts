@@ -9,7 +9,12 @@
  * To make a new model tenant-aware: give it a `schoolId` column (+ index) in
  * schema.prisma and add its name to TENANT_MODELS.
  */
-export const TENANT_MODELS: ReadonlySet<string> = new Set(['User']);
+export const TENANT_MODELS: ReadonlySet<string> = new Set([
+  'User',
+  'SchoolFeature',
+  'SchoolFeatureField',
+  'Student',
+]);
 
 type Args = Record<string, unknown> | undefined;
 
