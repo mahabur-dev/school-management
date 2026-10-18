@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaService } from '../../prisma';
+import { Prisma, PrismaService, SchoolStatus } from '../../prisma';
 
 const AUTH_USER_INCLUDE = {
   school: { select: { id: true, name: true, slug: true, status: true } },
@@ -30,6 +30,32 @@ export class AuthRepository {
     return this.prisma.user.findUnique({
       where: { id },
       include: AUTH_USER_INCLUDE,
+    });
+  }
+
+  /**
+   * Public-safe exact lookup for the tenant sign-in handoff. A school can be
+   * found by its displayed name or unique workspace ID; at most two name
+   * matches are returned so callers can reject ambiguous names safely.
+   */
+  async findActiveSchoolsByNameOrSlug(query: string) {
+    const bySlug = await this.prisma.school.findFirst({
+      where: {
+        status: SchoolStatus.ACTIVE,
+        slug: query.toLowerCase(),
+      },
+      select: { id: true, name: true, slug: true },
+    });
+    if (bySlug) return [bySlug];
+
+    return this.prisma.school.findMany({
+      where: {
+        status: SchoolStatus.ACTIVE,
+        name: { equals: query, mode: 'insensitive' },
+      },
+      select: { id: true, name: true, slug: true },
+      orderBy: { createdAt: 'asc' },
+      take: 2,
     });
   }
 

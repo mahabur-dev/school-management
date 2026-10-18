@@ -30,7 +30,7 @@ export class SchoolsRepository {
           create: {
             ...input.admin,
             role: UserRole.SCHOOL_ADMIN,
-            mustChangePassword: true,
+            mustChangePassword: false,
             // The super admin vouches for the address; no OTP on first login.
             emailVerifiedAt: new Date(),
           },

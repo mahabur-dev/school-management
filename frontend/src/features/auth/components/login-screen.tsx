@@ -16,8 +16,8 @@ type LoginScreenProps = {
 export function LoginScreen({ mode, tenantName, tenantSlug }: LoginScreenProps) {
   const router = useRouter();
   const initialTenant =
-    mode === 'school' && tenantName && tenantSlug
-      ? { id: '', name: tenantName, slug: tenantSlug }
+    mode === 'school' && tenantSlug
+      ? { id: '', name: tenantName ?? tenantSlug, slug: tenantSlug }
       : null;
   const [tenant, setTenant] = useState<ResolvedTenant | null>(initialTenant);
   const [selectingTenant, setSelectingTenant] = useState(false);

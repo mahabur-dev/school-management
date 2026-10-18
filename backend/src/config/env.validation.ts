@@ -51,6 +51,13 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   APP_NAME: string = 'School SaaS';
 
+  /** Public web origin used for links sent in transactional emails. */
+  @IsString()
+  @Matches(/^https?:\/\/[^/]+(?:\/.*)?$/, {
+    message: 'APP_WEB_URL must be an absolute http(s) URL',
+  })
+  APP_WEB_URL: string = 'http://localhost:3000';
+
   /** Turns rate limiting off. For automated tests only; forbidden in production. */
   @Transform(toBoolean)
   @IsBoolean()

@@ -19,11 +19,13 @@ export type LoginInput = {
 export const authApi = {
   login: (input: LoginInput) =>
     apiRequest<AuthSession>(endpoints.auth.login, { method: 'POST', body: input }),
-  resolveTenant: (slug: string) =>
+  resolveTenant: (query: string) =>
     apiRequest<ResolvedTenant>(endpoints.auth.resolveTenant, {
       method: 'POST',
-      body: { slug },
+      body: { query },
     }),
+  refresh: () =>
+    apiRequest<AuthSession>(endpoints.auth.refresh, { method: 'POST' }),
   me: (accessToken: string) =>
     apiRequest<CurrentUser>(endpoints.auth.me, { accessToken }),
   logout: (accessToken: string) =>

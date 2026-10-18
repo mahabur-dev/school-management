@@ -5,18 +5,6 @@ import styles from './dashboard-home.module.css';
 export function DashboardHome() {
   return (
     <main className={styles.dashboard}>
-      <section className={styles.welcomeRow}>
-        <div>
-          <span className={styles.date}>Saturday, 18 October 2026</span>
-          <h1>Good morning, Admin</h1>
-          <p>Here&apos;s what&apos;s happening across your school today.</p>
-        </div>
-        <button type="button" className={styles.primaryAction} disabled title="Student creation will be connected with the Students module">
-          <AppIcon name="plus" />
-          <span>Add new student</span>
-        </button>
-      </section>
-
       <section className={styles.metricsGrid} aria-label="School overview">
         {dashboardMetrics.map((metric) => (
           <article key={metric.label} className={`${styles.metricCard} ${styles[metric.tone]}`}>
@@ -115,9 +103,7 @@ function PanelHeader({ title, description, action }: { title: string; descriptio
   return (
     <div className={styles.panelHeader}>
       <div><h2>{title}</h2><p>{description}</p></div>
-      <button type="button" disabled title={`${action} will be connected with its module`}>
-        {action}<AppIcon name="chevron-down" />
-      </button>
+      <span className={styles.panelAction}>{action}</span>
     </div>
   );
 }

@@ -5,8 +5,8 @@ import {
 } from './school-dashboard-shell';
 
 const platformNavigation: DashboardNavigationItem[] = [
-  { label: 'Overview', icon: 'dashboard', active: true },
-  { label: 'Schools', icon: 'building' },
+  { label: 'Overview', icon: 'dashboard', active: true, href: '/super-admin' },
+  { label: 'Schools', icon: 'building', href: '/super-admin/schools' },
   { label: 'Platform users', icon: 'people' },
   { label: 'Feature controls', icon: 'features' },
   { label: 'System activity', icon: 'pulse' },
@@ -25,7 +25,7 @@ export function SuperAdminDashboardShell({ children }: { children: ReactNode }) 
       fallbackName="Platform Admin"
       helpTitle="Platform support"
       helpText="Operations & security centre"
-      allowTenantSwitch
+      logoutHref="/super-admin/login"
     >
       {children}
     </DashboardShell>

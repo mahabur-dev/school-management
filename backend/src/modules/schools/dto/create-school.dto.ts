@@ -33,18 +33,26 @@ export class CreateSchoolDto {
   @IsString()
   @MinLength(1)
   @MaxLength(80)
-  adminFirstName!: string;
+  @IsOptional()
+  adminFirstName?: string;
 
   @Transform(trimString)
   @IsString()
   @MinLength(1)
   @MaxLength(80)
-  adminLastName!: string;
+  @IsOptional()
+  adminLastName?: string;
 
   @Transform(normalizeEmail)
   @IsEmail()
   @MaxLength(254)
   adminEmail!: string;
+
+  /** Chosen by the first school administrator; never returned by this API. */
+  @IsString()
+  @MinLength(10)
+  @MaxLength(72)
+  adminPassword!: string;
 
   @Transform(trimString)
   @IsString()

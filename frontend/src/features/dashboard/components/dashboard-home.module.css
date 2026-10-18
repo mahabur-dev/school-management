@@ -1,45 +1,5 @@
 .dashboard { max-width: 1540px; margin: 0 auto; }
 
-.welcomeRow {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-
-.date {
-  display: block;
-  margin-bottom: 8px;
-  color: #0b73f6;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.welcomeRow h1 { margin: 0; color: #17253d; font-size: clamp(26px, 2.5vw, 36px); line-height: 1.15; letter-spacing: -0.045em; }
-.welcomeRow p { margin: 7px 0 0; color: #7d899c; font-size: 12px; }
-
-.primaryAction {
-  height: 43px;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 0 17px;
-  border: 0;
-  border-radius: 11px;
-  color: #fff;
-  background: linear-gradient(135deg, #0b78fa, #0862dd);
-  box-shadow: 0 10px 22px rgba(11, 105, 229, 0.2);
-  font-size: 11px;
-  font-weight: 750;
-  cursor: default;
-}
-
-.primaryAction:disabled { opacity: 1; }
-.primaryAction svg { width: 16px; height: 16px; }
-
 .metricsGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -100,21 +60,19 @@
 
 .panel {
   min-width: 0;
-  padding: 20px;
-  border: 1px solid #e2e9f2;
+  padding: 21px;
+  border: 1px solid #dce5f0;
   border-radius: 17px;
   background: #fff;
-  box-shadow: 0 7px 22px rgba(28, 56, 97, 0.045);
+  box-shadow: 0 8px 24px rgba(28, 56, 97, 0.06);
 }
 
 .panelHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.panelHeader h2 { margin: 0; color: #223149; font-size: 14px; letter-spacing: -0.02em; }
-.panelHeader p { margin: 5px 0 0; color: #96a0b0; font-size: 9px; }
-.panelHeader button { height: 30px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid #e5eaf1; border-radius: 8px; color: #6f7c91; background: #fbfcfe; font-size: 9px; font-weight: 650; }
-.panelHeader button:disabled { opacity: 1; }
-.panelHeader button svg { width: 12px; height: 12px; }
+.panelHeader h2 { margin: 0; color: #17253d; font-size: 15px; font-weight: 800; letter-spacing: -0.02em; }
+.panelHeader p { margin: 5px 0 0; color: #68778d; font-size: 11px; line-height: 1.45; }
+.panelAction { min-height:31px; display:inline-flex; align-items:center; padding:0 10px; border:1px solid #d9e3ef; border-radius:8px; color:#43546b; background:#fbfcfe; font-size:10px; font-weight:750; white-space:nowrap; }
 
-.chartLegend { display: flex; gap: 17px; margin: 22px 0 1px 46px; color: #8490a3; font-size: 9px; }
+.chartLegend { display: flex; gap: 17px; margin: 22px 0 1px 46px; color: #596a81; font-size: 10px; font-weight: 650; }
 .chartLegend span,
 .distributionLegend span { display: flex; align-items: center; gap: 6px; }
 .blueDot,
@@ -122,7 +80,7 @@
 .amberDot { background: #ffc95f; }
 
 .chartWrap { position: relative; padding: 0 0 0 42px; }
-.chartAxis { position: absolute; top: 8px; bottom: 24px; left: 0; display: flex; flex-direction: column; justify-content: space-between; color: #a5afbd; font-size: 8px; }
+.chartAxis { position: absolute; top: 8px; bottom: 24px; left: 0; display: flex; flex-direction: column; justify-content: space-between; color: #718198; font-size: 9px; font-weight: 600; }
 .lineChart { width: 100%; height: 205px; overflow: visible; }
 .gridLine { fill: none; stroke: #edf1f6; stroke-width: 1; }
 .areaPath { fill: url(#attendanceFill); }
@@ -132,7 +90,7 @@
 .chartTooltip rect { fill: #17253d; }
 .chartTooltip text:first-of-type { fill: #aeb8c8; font-size: 7px; }
 .chartTooltip text:last-of-type { fill: #fff; font-size: 10px; font-weight: 800; }
-.chartDays { display: flex; justify-content: space-between; padding-left: 1px; color: #9ca7b6; font-size: 8px; }
+.chartDays { display: flex; justify-content: space-between; padding-left: 1px; color: #718198; font-size: 9px; font-weight: 600; }
 
 .distributionPanel { display: flex; flex-direction: column; }
 .donutWrap { display: grid; place-items: center; padding: 22px 0 16px; }
@@ -140,16 +98,16 @@
 .donut::before { content: ''; position: absolute; width: 105px; height: 105px; border-radius: 50%; background: #fff; }
 .donut div { position: relative; z-index: 1; display: grid; gap: 2px; text-align: center; transform: rotate(54deg); }
 .donut strong { color: #233149; font-size: 22px; letter-spacing: -0.04em; }
-.donut span { color: #94a0b1; font-size: 8px; }
+.donut span { color: #68778d; font-size: 9px; font-weight: 650; }
 
 .distributionLegend { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .distributionLegend > div { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 3px 8px; padding: 10px 11px; border-radius: 10px; background: #f6f9fd; }
-.distributionLegend span { grid-column: 1 / -1; color: #77849a; font-size: 8px; }
-.distributionLegend strong { color: #25344b; font-size: 13px; }
-.distributionLegend small { align-self: center; color: #8d99aa; font-size: 8px; }
+.distributionLegend span { grid-column: 1 / -1; color: #596a81; font-size: 10px; font-weight: 650; }
+.distributionLegend strong { color: #1d2c43; font-size: 14px; }
+.distributionLegend small { align-self: center; color: #64758c; font-size: 9px; font-weight: 650; }
 
 .capacity { margin-top: auto; padding-top: 16px; }
-.capacity div { display: flex; justify-content: space-between; margin-bottom: 8px; color: #7c899c; font-size: 8px; }
+.capacity div { display: flex; justify-content: space-between; margin-bottom: 8px; color: #596a81; font-size: 10px; font-weight: 650; }
 .capacity strong { color: #26354d; }
 .capacityTrack { display: block; height: 6px; overflow: hidden; border-radius: 99px; background: #edf2f8; }
 .capacityTrack i { display: block; width: 87%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #0b73f6, #55a6ff); }
@@ -168,7 +126,7 @@
 .eventCopy,
 .activityCopy { min-width: 0; display: grid; gap: 4px; }
 .eventCopy strong,
-.activityCopy strong { overflow: hidden; color: #2c3a50; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.activityCopy strong { overflow: hidden; color: #26364d; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
 .eventCopy small,
 .activityCopy small { overflow: hidden; color: #96a1b1; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 .eventAudience { margin-left: auto; padding: 5px 7px; border-radius: 6px; color: #718096; background: #f5f7fa; font-size: 7px; white-space: nowrap; }
@@ -176,7 +134,7 @@
 .activityAvatar { width: 38px; height: 38px; display: grid; flex: 0 0 auto; place-items: center; border-radius: 11px; color: #0b68da; background: #eaf3ff; font-size: 9px; font-weight: 850; }
 .activityAvatar.amber { color: #7d5a0b; background: #fff0ce; }
 .activityAvatar.purple { color: #7357bd; background: #eee9ff; }
-.activityItem time { margin-left: auto; color: #a0aaba; font-size: 7px; white-space: nowrap; }
+.activityItem time { margin-left: auto; color: #607188; font-size: 9px; font-weight: 600; white-space: nowrap; }
 
 @media (max-width: 1180px) {
   .metricsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -189,9 +147,6 @@
 }
 
 @media (max-width: 600px) {
-  .welcomeRow { align-items: flex-start; }
-  .primaryAction { width: 43px; flex: 0 0 auto; justify-content: center; padding: 0; }
-  .primaryAction span { display: none; }
   .metricsGrid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .metricCard { min-height: 150px; padding: 15px; }
   .metricValue { font-size: 23px; }
