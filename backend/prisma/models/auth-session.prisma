@@ -1,0 +1,22 @@
+/// One row per issued refresh token. Rotation keeps `familyId` so a reused
+/// (already rotated) token can revoke the whole family.
+model AuthSession {
+  id               String    @id @default(uuid(7)) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  familyId         String    @map("family_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.VarChar(64)
+  rememberMe       Boolean   @default(false) @map("remember_me")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  revokeReason     String?   @map("revoke_reason") @db.VarChar(50)
+  userAgent        String?   @map("user_agent") @db.VarChar(512)
+  ipAddress        String?   @map("ip_address") @db.VarChar(64)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
+  @@map("auth_sessions")
+}

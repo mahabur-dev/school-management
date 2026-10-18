@@ -1,0 +1,27 @@
+model User {
+  id                 String     @id @default(uuid(7)) @db.Uuid
+  /// Null only for SUPER_ADMIN.
+  schoolId           String?    @map("school_id") @db.Uuid
+  email              String     @unique @db.VarChar(254)
+  passwordHash       String     @map("password_hash") @db.VarChar(100)
+  firstName          String     @map("first_name") @db.VarChar(80)
+  lastName           String     @map("last_name") @db.VarChar(80)
+  phoneNumber        String?    @map("phone_number") @db.VarChar(32)
+  role               UserRole
+  status             UserStatus @default(ACTIVE)
+  /// True for accounts created with a temporary password.
+  mustChangePassword Boolean    @default(false) @map("must_change_password")
+  emailVerifiedAt    DateTime?  @map("email_verified_at") @db.Timestamptz(3)
+  lastLoginAt        DateTime?  @map("last_login_at") @db.Timestamptz(3)
+  passwordChangedAt  DateTime?  @map("password_changed_at") @db.Timestamptz(3)
+  createdAt          DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  school   School?       @relation(fields: [schoolId], references: [id], onDelete: Restrict)
+  sessions AuthSession[]
+  tokens   AuthToken[]
+
+  @@index([schoolId, role])
+  @@index([schoolId, status])
+  @@map("users")
+}
