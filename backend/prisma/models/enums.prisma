@@ -1,0 +1,30 @@
+enum UserRole {
+  SUPER_ADMIN
+  SCHOOL_ADMIN
+  TEACHER
+  STUDENT
+  PARENT
+
+  @@map("user_role")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+
+  @@map("user_status")
+}
+
+enum SchoolStatus {
+  ACTIVE
+  SUSPENDED
+
+  @@map("school_status")
+}
+
+enum AuthTokenType {
+  PASSWORD_RESET
+  PASSWORD_RESET_VERIFIED
+
+  @@map("auth_token_type")
+}
