@@ -17,11 +17,24 @@
   box-shadow: 0 10px 22px rgba(11, 105, 229, 0.2);
   font-size: 12px;
   font-weight: 800;
+  white-space: nowrap;
   cursor: pointer;
 }
 .addButton svg {
   width: 17px;
   height: 17px;
+}
+.directoryActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.directoryActions .addButton {
+  flex: 0 0 auto;
+}
+.directoryActions > :first-child {
+  min-width: 0;
+  flex: 1 1 200px;
 }
 .card {
   padding: 22px;
@@ -290,7 +303,7 @@
 }
 .detailsDialog,
 .confirmDialog {
-  width: min(100%, 480px);
+  width: min(100%, 780px);
   display: grid;
   gap: 18px;
   padding: 26px;
@@ -298,6 +311,34 @@
   border-radius: 20px;
   background: #fff;
   box-shadow: 0 24px 70px rgba(16, 40, 78, 0.28);
+}
+.confirmDialog {
+  width: min(100%, 480px);
+}
+.detailsTabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #dfe7f1;
+  border-radius: 10px;
+  background: #f7faff;
+}
+.detailsTabs button {
+  height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 7px;
+  color: #687a91;
+  background: transparent;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.detailsTabs .detailsTabActive {
+  color: #0969d9;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(31, 65, 111, 0.08);
 }
 .detailsDialog header {
   display: flex;
@@ -428,6 +469,27 @@
   }
   .dialog {
     padding: 21px 17px;
+  }
+  .directoryActions {
+    width: 100%;
+  }
+  .directoryActions .addButton {
+    height: 42px;
+    padding: 0 13px;
+    font-size: 11px;
+  }
+  .directoryActions .addButton svg {
+    width: 15px;
+    height: 15px;
+  }
+}
+@media (max-width: 430px) {
+  .directoryActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .directoryActions .addButton {
+    width: 100%;
   }
   .dialog footer {
     flex-direction: column-reverse;

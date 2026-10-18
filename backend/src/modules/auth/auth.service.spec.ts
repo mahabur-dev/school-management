@@ -76,7 +76,10 @@ describe('AuthService.login', () => {
   it('returns the user and tokens for valid credentials', async () => {
     const { service, sessions, users } = setup(makeUser());
 
-    const result = await service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {});
+    const result = await service.login(
+      { ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' },
+      {},
+    );
 
     expect(result.accessToken).toBe('access');
     expect(result.user).toMatchObject({
@@ -91,33 +94,33 @@ describe('AuthService.login', () => {
   it('hides whether the email exists and still spends hashing time', async () => {
     const { service, passwords } = setup(null);
 
-    await expect(service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {})).rejects.toThrow(
-      'Invalid email or password',
-    );
+    await expect(
+      service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {}),
+    ).rejects.toThrow('Invalid email or password');
     expect(passwords.burn).toHaveBeenCalledWith(dto.password);
   });
 
   it('rejects a wrong password with the same message', async () => {
     const { service, sessions } = setup(makeUser(), false);
 
-    await expect(service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {})).rejects.toThrow(
-      'Invalid email or password',
-    );
+    await expect(
+      service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {}),
+    ).rejects.toThrow('Invalid email or password');
     expect(sessions.issue).not.toHaveBeenCalled();
   });
 
   it('rejects a deactivated user as invalid credentials', async () => {
     const { service } = setup(makeUser({ status: UserStatus.SUSPENDED }));
-    await expect(service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {})).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
+    await expect(
+      service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {}),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('requires a verified email', async () => {
     const { service } = setup(makeUser({ emailVerifiedAt: null }));
-    await expect(service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {})).rejects.toBeInstanceOf(
-      ForbiddenException,
-    );
+    await expect(
+      service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {}),
+    ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('blocks users of a suspended school', async () => {
@@ -125,9 +128,9 @@ describe('AuthService.login', () => {
     user.school = { ...user.school!, status: SchoolStatus.SUSPENDED };
     const { service, sessions } = setup(user);
 
-    await expect(service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {})).rejects.toBeInstanceOf(
-      ForbiddenException,
-    );
+    await expect(
+      service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-a' }, {}),
+    ).rejects.toBeInstanceOf(ForbiddenException);
     expect(sessions.issue).not.toHaveBeenCalled();
   });
 
@@ -150,10 +153,7 @@ describe('AuthService.login', () => {
   it('rejects credentials from a different school tenant', async () => {
     const { service, sessions } = setup(makeUser());
     await expect(
-      service.login(
-        { ...dto, portal: 'SCHOOL', tenantSlug: 'school-b' },
-        {},
-      ),
+      service.login({ ...dto, portal: 'SCHOOL', tenantSlug: 'school-b' }, {}),
     ).rejects.toBeInstanceOf(UnauthorizedException);
     expect(sessions.issue).not.toHaveBeenCalled();
   });
@@ -179,24 +179,28 @@ describe('AuthService.login', () => {
 describe('AuthService.resolveTenant', () => {
   it('returns the public-safe identity of an active school', async () => {
     const { service, users } = setup(null);
-    users.findActiveSchoolsByNameOrSlug.mockResolvedValue([{
-      id: 'school-a',
-      name: 'School A',
-      slug: 'school-a',
-    }]);
+    users.findActiveSchoolsByNameOrSlug.mockResolvedValue([
+      {
+        id: 'school-a',
+        name: 'School A',
+        slug: 'school-a',
+      },
+    ]);
 
-    await expect(service.resolveTenant({ query: 'School A' })).resolves.toEqual({
-      id: 'school-a',
-      name: 'School A',
-      slug: 'school-a',
-    });
+    await expect(service.resolveTenant({ query: 'School A' })).resolves.toEqual(
+      {
+        id: 'school-a',
+        name: 'School A',
+        slug: 'school-a',
+      },
+    );
   });
 
   it('does not resolve an unknown or unavailable school', async () => {
     const { service } = setup(null);
-    await expect(service.resolveTenant({ query: 'Missing School' })).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    await expect(
+      service.resolveTenant({ query: 'Missing School' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('requires a unique workspace ID when the school name is ambiguous', async () => {
@@ -206,8 +210,8 @@ describe('AuthService.resolveTenant', () => {
       { id: 'school-b', name: 'School A', slug: 'school-b' },
     ]);
 
-    await expect(service.resolveTenant({ query: 'School A' })).rejects.toBeInstanceOf(
-      ConflictException,
-    );
+    await expect(
+      service.resolveTenant({ query: 'School A' }),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 });

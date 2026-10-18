@@ -13,6 +13,7 @@ import { SchoolsModule } from './modules/schools/schools.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 import { UsersModule } from './modules/users/users.module';
 import { StudentsModule } from './modules/students/students.module';
+import { FinanceModule } from './modules/finance/finance.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { StudentsModule } from './modules/students/students.module';
     AuthModule,
     UsersModule,
     StudentsModule,
+    FinanceModule,
     SchoolsModule,
     SuperAdminModule,
   ],

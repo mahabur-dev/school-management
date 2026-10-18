@@ -1,0 +1,22 @@
+.panel { display:grid; gap:16px; }
+.state, .error { padding:24px; border:1px solid #dce5f0; border-radius:12px; color:#6b7b91; background:#f8fbff; font-size:11px; text-align:center; }
+.error { border-color:#ffd1d1; color:#a12c2c; background:#fff5f5; }
+.metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:9px; }
+.metrics article { display:grid; gap:6px; padding:12px; border:1px solid #dfe8f2; border-radius:11px; background:#f8fbff; }
+.metrics span { color:#718198; font-size:9px; font-weight:750; }
+.metrics strong { color:#1d2d44; font-size:15px; letter-spacing:-.02em; }
+.section { overflow:hidden; border:1px solid #e0e8f2; border-radius:12px; background:#fff; }
+.section > header { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; padding:13px 14px; border-bottom:1px solid #e8eef5; }
+.section h3 { margin:0; color:#22344c; font-size:12px; }
+.section p { margin:4px 0 0; color:#7a899d; font-size:9px; }
+.section header > span { padding:4px 7px; border-radius:99px; color:#60748e; background:#eef4fb; font-size:8px; font-weight:800; white-space:nowrap; }
+.tableWrap { overflow:auto; }
+.tableWrap table { width:100%; min-width:640px; border-collapse:collapse; }
+.tableWrap th { padding:9px 10px; color:#66778e; background:#f6f9fd; font-size:8px; font-weight:800; letter-spacing:.06em; text-align:left; text-transform:uppercase; }
+.tableWrap td { padding:11px 10px; border-top:1px solid #edf1f6; color:#52647b; font-size:9px; }
+.tableWrap td strong { display:block; color:#273950; font-size:10px; }
+.tableWrap td small { display:block; margin-top:3px; color:#8794a6; font-size:8px; }
+.badge { display:inline-flex; align-items:center; min-height:20px; padding:0 7px; border-radius:99px; font-size:7px; font-weight:850; letter-spacing:.03em; text-transform:uppercase; white-space:nowrap; }
+.success { color:#087f5b; background:#e8faf3; }.warning { color:#9b6811; background:#fff4d9; }.danger { color:#b33f3f; background:#fff0f0; }.neutral { color:#68778d; background:#eef2f6; }
+.empty { padding:22px!important; color:#7a899c!important; text-align:center; }
+@media (max-width:650px) { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }

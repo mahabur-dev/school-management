@@ -8,7 +8,22 @@ const platformNavigation: DashboardNavigationItem[] = [
   { label: 'Overview', icon: 'dashboard', active: true, href: '/super-admin' },
   { label: 'Schools', icon: 'building', href: '/super-admin/schools' },
   { label: 'Platform users', icon: 'people' },
-  { label: 'Feature controls', icon: 'features', href: '/super-admin/features' },
+  {
+    label: 'Feature controls',
+    icon: 'features',
+    children: [
+      {
+        label: 'Student Management',
+        icon: 'student',
+        href: '/super-admin/features',
+      },
+      {
+        label: 'Fee & Invoice Management',
+        icon: 'finance',
+        href: '/super-admin/finance',
+      },
+    ],
+  },
   { label: 'System activity', icon: 'pulse' },
   { label: 'Announcements', icon: 'notice' },
 ];

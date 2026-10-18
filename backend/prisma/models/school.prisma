@@ -8,10 +8,21 @@ model School {
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  users         User[]
-  features      SchoolFeature[]
-  featureFields SchoolFeatureField[]
-  students      Student[]
+  users              User[]
+  features           SchoolFeature[]
+  featureFields      SchoolFeatureField[]
+  students           Student[]
+  financeSettings    FinanceSetting?
+  feeCategories      FeeCategory[]
+  feeStructures      FeeStructure[]
+  feeStructureItems  FeeStructureItem[]
+  invoices           Invoice[]
+  invoiceItems       InvoiceItem[]
+  invoiceSequences   InvoiceSequence[]
+  paymentSequences   PaymentSequence[]
+  payments           Payment[]
+  paymentAllocations PaymentAllocation[]
+  paymentReversals   PaymentReversal[]
 
   @@map("schools")
 }

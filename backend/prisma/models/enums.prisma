@@ -33,6 +33,7 @@ enum AuthTokenType {
 /// matching SchoolFeature row.
 enum FeatureKey {
   STUDENT_MANAGEMENT
+  FEE_MANAGEMENT
 
   @@map("feature_key")
 }
@@ -45,4 +46,44 @@ enum FeatureFieldType {
   SELECT
 
   @@map("feature_field_type")
+}
+
+enum FeeBillingFrequency {
+  MONTHLY
+  ONE_TIME
+
+  @@map("fee_billing_frequency")
+}
+
+enum FeeStructureStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+
+  @@map("fee_structure_status")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  VOID
+
+  @@map("invoice_status")
+}
+
+enum PaymentMethod {
+  CASH
+  BANK_TRANSFER
+  MOBILE_BANKING
+  CHEQUE
+  OTHER
+
+  @@map("payment_method")
+}
+
+enum PaymentStatus {
+  POSTED
+  REVERSED
+
+  @@map("payment_status")
 }

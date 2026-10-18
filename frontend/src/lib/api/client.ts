@@ -45,3 +45,24 @@ export async function apiRequest<T>(
 
   return payload as T;
 }
+
+export async function apiBlobRequest(
+  path: string,
+  { headers, accessToken, body: _body, ...options }: RequestOptions = {},
+): Promise<Blob> {
+  if (!API_URL) throw new Error('NEXT_PUBLIC_API_URL is not configured');
+  void _body;
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: 'include',
+    headers: {
+      Accept: 'application/pdf',
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...headers,
+    },
+  });
+
+  if (!response.ok) throw await ApiError.fromResponse(response);
+  return response.blob();
+}

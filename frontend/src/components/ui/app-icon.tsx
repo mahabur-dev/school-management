@@ -9,15 +9,18 @@ export type AppIconName =
   | "check"
   | "chevron-down"
   | "dashboard"
+  | "download"
   | "edit"
   | "eye"
   | "exam"
   | "features"
+  | "finance"
   | "logout"
   | "menu"
   | "notice"
   | "people"
   | "plus"
+  | "printer"
   | "pulse"
   | "search"
   | "settings"
@@ -87,6 +90,13 @@ const paths: Record<AppIconName, React.ReactNode> = {
       <rect x="14" y="14" width="7" height="7" rx="2" />
     </>
   ),
+  download: (
+    <>
+      <path d="M12 3v12" />
+      <path d="m7 10 5 5 5-5" />
+      <path d="M5 21h14" />
+    </>
+  ),
   edit: (
     <>
       <path d="M12 20h9" />
@@ -111,6 +121,13 @@ const paths: Record<AppIconName, React.ReactNode> = {
       <rect x="14" y="3" width="7" height="7" rx="2" />
       <rect x="3" y="14" width="7" height="7" rx="2" />
       <path d="M17.5 14v7M14 17.5h7" />
+    </>
+  ),
+  finance: (
+    <>
+      <rect x="3" y="5" width="18" height="15" rx="2" />
+      <path d="M3 10h18M7 15h4M16 15h1" />
+      <path d="M7 3v4M17 3v4" />
     </>
   ),
   logout: (
@@ -140,6 +157,13 @@ const paths: Record<AppIconName, React.ReactNode> = {
   plus: (
     <>
       <path d="M12 5v14M5 12h14" />
+    </>
+  ),
+  printer: (
+    <>
+      <path d="M6 9V3h12v6" />
+      <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+      <rect x="6" y="14" width="12" height="7" rx="1" />
     </>
   ),
   pulse: (

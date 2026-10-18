@@ -10,14 +10,22 @@ import { session } from "@/lib/auth/session";
 import type { ConfiguredField, FeatureKey } from "@/types/feature";
 import type { School } from "@/types/school";
 import { featuresApi } from "../api";
+import type { FeatureCatalogueItem } from "../api";
 import styles from "./feature-controls-page.module.css";
 
-const STUDENT_FEATURE: FeatureKey = "student_management";
+type FeatureControlsPageProps = {
+  initialFeatureKey?: FeatureKey;
+};
 
-export function FeatureControlsPage() {
+export function FeatureControlsPage({
+  initialFeatureKey = "student_management",
+}: FeatureControlsPageProps = {}) {
   const token = session.get()?.accessToken;
   const [schools, setSchools] = useState<School[]>([]);
   const [schoolId, setSchoolId] = useState("");
+  const [catalogue, setCatalogue] = useState<FeatureCatalogueItem[]>([]);
+  const [featureKey, setFeatureKey] =
+    useState<FeatureKey>(initialFeatureKey);
   const [enabled, setEnabled] = useState(true);
   const [fields, setFields] = useState<ConfiguredField[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,6 +37,10 @@ export function FeatureControlsPage() {
   const selectedSchool = useMemo(
     () => schools.find((school) => school.id === schoolId),
     [schoolId, schools],
+  );
+  const selectedFeature = useMemo(
+    () => catalogue.find((feature) => feature.key === featureKey),
+    [catalogue, featureKey],
   );
   const filteredSchools = useMemo(() => {
     const query = workspaceQuery.trim().toLowerCase();
@@ -57,43 +69,51 @@ export function FeatureControlsPage() {
 
   useEffect(() => {
     if (!token) return;
-    schoolsApi
-      .list(token, "?page=1&limit=100")
-      .then((response) => {
+    Promise.all([
+      schoolsApi.list(token, "?page=1&limit=100"),
+      featuresApi.listCatalogue(token),
+    ])
+      .then(([response, features]) => {
         setSchools(response.items);
+        setCatalogue(features);
         setSchoolId(response.items[0]?.id ?? "");
+        setFeatureKey(
+          features.find((feature) => feature.key === initialFeatureKey)?.key ??
+            features[0]?.key ??
+            initialFeatureKey,
+        );
         if (response.items.length === 0) setLoading(false);
       })
       .catch(() => {
         showError("School workspaces could not be loaded.");
         setLoading(false);
       });
-  }, [showError, token]);
+  }, [initialFeatureKey, showError, token]);
 
   useEffect(() => {
     if (!token || !schoolId) return;
-    featuresApi
-      .getSchoolFields(token, schoolId, STUDENT_FEATURE)
-      .then(setFields)
+    Promise.all([
+      featuresApi.getSchoolFeature(token, schoolId, featureKey),
+      featuresApi.getSchoolFields(token, schoolId, featureKey),
+    ])
+      .then(([feature, configuredFields]) => {
+        setEnabled(feature.enabled);
+        setFields(configuredFields);
+      })
       .catch(() => showError("Field configuration could not be loaded."))
       .finally(() => setLoading(false));
-  }, [schoolId, showError, token]);
+  }, [featureKey, schoolId, showError, token]);
 
   async function save() {
     if (!token || !schoolId) return;
     setSaving(true);
     try {
-      await featuresApi.setSchoolFeature(
-        token,
-        schoolId,
-        STUDENT_FEATURE,
-        enabled,
-      );
+      await featuresApi.setSchoolFeature(token, schoolId, featureKey, enabled);
       setFields(
         await featuresApi.updateSchoolFields(
           token,
           schoolId,
-          STUDENT_FEATURE,
+          featureKey,
           fields,
         ),
       );
@@ -136,7 +156,7 @@ export function FeatureControlsPage() {
         description="Manage module access and data requirements for each school workspace."
         action={
           <span className={styles.contextBadge}>
-            <AppIcon name="features" /> Student Management
+            <AppIcon name="features" /> {selectedFeature?.name ?? "Feature"}
           </span>
         }
       />
@@ -150,10 +170,7 @@ export function FeatureControlsPage() {
           </span>
           <div>
             <h2 id="workspace-title">School workspace</h2>
-            <p>
-              Select the tenant whose Student Management policy you want to
-              configure.
-            </p>
+            <p>Select the tenant whose feature policy you want to configure.</p>
           </div>
         </div>
         <div className={styles.workspaceSelect} ref={workspacePickerRef}>
@@ -239,13 +256,13 @@ export function FeatureControlsPage() {
         <div className={styles.moduleRow}>
           <div className={styles.moduleIdentity}>
             <span className={styles.moduleIcon}>
-              <AppIcon name="student" />
+              <AppIcon name="features" />
             </span>
             <div>
-              <h2 id="module-title">Student Management</h2>
+              <h2 id="module-title">{selectedFeature?.name ?? "Feature"}</h2>
               <p>
-                Allow this school to access student records and related
-                workflows.
+                {selectedFeature?.description ??
+                  "Configure module access and data requirements."}
               </p>
             </div>
           </div>
@@ -270,7 +287,7 @@ export function FeatureControlsPage() {
         </div>
         <div className={styles.fieldsHeader}>
           <div>
-            <h3>Student form fields</h3>
+            <h3>{selectedFeature?.name ?? "Feature"} fields</h3>
             <p>
               Control which information appears on the form and which values are
               mandatory.

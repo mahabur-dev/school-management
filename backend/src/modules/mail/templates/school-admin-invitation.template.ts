@@ -10,14 +10,20 @@ type SchoolAdminInvitationTemplateInput = {
 function escapeHtml(value: string) {
   return value.replace(/[&<>'"]/g, (character) => {
     const entities: Record<string, string> = {
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;',
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
     };
     return entities[character];
   });
 }
 
 /** Branded first-access email sent after a platform admin creates a school. */
-export function getSchoolAdminInvitationTemplate(input: SchoolAdminInvitationTemplateInput) {
+export function getSchoolAdminInvitationTemplate(
+  input: SchoolAdminInvitationTemplateInput,
+) {
   const appName = escapeHtml(input.appName);
   const schoolName = escapeHtml(input.schoolName);
   const administratorName = escapeHtml(input.administratorName);
