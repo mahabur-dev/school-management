@@ -143,4 +143,35 @@ and rate limiting.
   caching of the school status check, and Row Level Security as a second safety net.
 - The `users.school_id` rule (null only for super admins) is enforced in code. Add a
   CHECK constraint in a migration when you want the database to enforce it too.
-# school-management
+## Railway deployment
+
+The backend includes a production multi-stage `Dockerfile` and
+`railway.toml`. In Railway, set the service **Root Directory** to `/backend`.
+The container applies pending Prisma migrations before starting the API; it
+does not seed production data automatically.
+
+Required production variables:
+
+```env
+NODE_ENV=production
+API_PREFIX=api/v1
+APP_NAME=School SaaS
+APP_WEB_URL=https://your-frontend.example.com
+CORS_ORIGINS=https://your-frontend.example.com
+DATABASE_URL=postgresql://...
+JWT_ACCESS_SECRET=use-a-random-secret-with-at-least-32-characters
+AUTH_EXPOSE_DEVELOPMENT_TOKENS=false
+THROTTLE_DISABLED=false
+```
+
+Railway provides `PORT` automatically. Optional SMTP and authentication
+duration variables can use the defaults documented in `.env.example`.
+The configured health endpoint is `/api/v1/health`.
+
+To create the first super administrator, run the seed once from a Railway
+shell after setting secure `SEED_SUPER_ADMIN_EMAIL` and
+`SEED_SUPER_ADMIN_PASSWORD` values:
+
+```bash
+npm run db:seed
+```
