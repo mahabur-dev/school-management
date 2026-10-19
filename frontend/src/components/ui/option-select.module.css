@@ -16,7 +16,7 @@
   color: #17253d;
   background: #fbfdff;
   font: inherit;
-  font-size: 12px;
+  font-size: var(--type-body);
   font-weight: 700;
   text-align: left;
   cursor: pointer;
@@ -67,19 +67,20 @@
 }
 
 .menu {
-  position: absolute;
-  top: calc(100% + 7px);
-  right: 0;
-  left: 0;
-  z-index: 20;
-  max-height: 218px;
+  position: fixed;
+  z-index: 200;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 5px;
   border: 1px solid #d5e0ec;
   border-radius: 11px;
   background: #fff;
   box-shadow: 0 16px 34px rgba(28, 56, 97, 0.18);
   animation: menuIn 0.14s ease-out;
+}
+
+.menu[data-placement="top"] {
+  animation-name: menuInAbove;
 }
 
 .option,
@@ -96,7 +97,7 @@
   color: #34465e;
   background: transparent;
   font: inherit;
-  font-size: 11px;
+  font-size: var(--type-body);
   font-weight: 650;
   text-align: left;
   cursor: pointer;
@@ -129,4 +130,20 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes menuInAbove {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu { animation: none; }
 }

@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { createPortal } from "react-dom";
 import { AppIcon } from "./app-icon";
 import styles from "./option-select.module.css";
 
@@ -18,6 +26,15 @@ type OptionSelectProps = {
   value: string;
 };
 
+type MenuPosition = {
+  placement: "top" | "bottom";
+  style: CSSProperties;
+};
+
+const MENU_GAP = 7;
+const MENU_MAX_HEIGHT = 218;
+const VIEWPORT_PADDING = 12;
+
 /**
  * A consistent, keyboard-friendly single-value select for application forms.
  * It deliberately avoids native select menus, whose option styling differs by
@@ -32,19 +49,71 @@ export function OptionSelect({
   value,
 }: OptionSelectProps) {
   const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
   const controlRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
   const selected = options.find((option) => option.value === value);
 
   useEffect(() => {
     function closeOnOutsidePointer(event: MouseEvent) {
-      if (!controlRef.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (
+        !controlRef.current?.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
+        setOpen(false);
+      }
     }
 
     document.addEventListener("mousedown", closeOnOutsidePointer);
     return () =>
       document.removeEventListener("mousedown", closeOnOutsidePointer);
   }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    function positionMenu() {
+      const control = controlRef.current;
+      if (!control) return;
+      const rect = control.getBoundingClientRect();
+      const availableBelow =
+        window.innerHeight - rect.bottom - MENU_GAP - VIEWPORT_PADDING;
+      const availableAbove = rect.top - MENU_GAP - VIEWPORT_PADDING;
+      const placement =
+        availableBelow < 160 && availableAbove > availableBelow
+          ? "top"
+          : "bottom";
+      const available =
+        placement === "top" ? availableAbove : availableBelow;
+      const width = Math.min(rect.width, window.innerWidth - VIEWPORT_PADDING * 2);
+      const left = Math.min(
+        Math.max(rect.left, VIEWPORT_PADDING),
+        window.innerWidth - width - VIEWPORT_PADDING,
+      );
+
+      setMenuPosition({
+        placement,
+        style: {
+          left,
+          width,
+          maxHeight: Math.max(80, Math.min(MENU_MAX_HEIGHT, available)),
+          ...(placement === "top"
+            ? { bottom: window.innerHeight - rect.top + MENU_GAP }
+            : { top: rect.bottom + MENU_GAP }),
+        },
+      });
+    }
+
+    positionMenu();
+    window.addEventListener("resize", positionMenu);
+    window.addEventListener("scroll", positionMenu, true);
+    return () => {
+      window.removeEventListener("resize", positionMenu);
+      window.removeEventListener("scroll", positionMenu, true);
+    };
+  }, [open]);
 
   function choose(nextValue: string) {
     onChange(nextValue);
@@ -88,8 +157,16 @@ export function OptionSelect({
         </span>
         <AppIcon name="chevron-down" />
       </button>
-      {open ? (
-        <div className={styles.menu} id={listboxId} role="listbox">
+      {open && menuPosition
+        ? createPortal(
+        <div
+          className={styles.menu}
+          data-placement={menuPosition.placement}
+          id={listboxId}
+          ref={menuRef}
+          role="listbox"
+          style={menuPosition.style}
+        >
           {options.map((option) => {
             const isSelected = option.value === value;
             return (
@@ -106,8 +183,10 @@ export function OptionSelect({
               </button>
             );
           })}
-        </div>
-      ) : null}
+        </div>,
+        document.body,
+      )
+        : null}
     </div>
   );
 }

@@ -25,6 +25,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ResolveTenantDto } from './dto/resolve-tenant.dto';
 import { VerifyResetOtpDto } from './dto/verify-reset-otp.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { PasswordResetService } from './password-reset.service';
 import type { Request, Response } from 'express';
 
@@ -114,6 +115,14 @@ export class AuthController {
   @Get('me')
   me(@CurrentUser() user: RequestUser) {
     return this.auth.getMe(user.id);
+  }
+
+  @Patch('me')
+  updateMe(
+    @CurrentUser() user: RequestUser,
+    @Body() dto: UpdateProfileDto,
+  ) {
+    return this.auth.updateProfile(user.id, dto);
   }
 
   @Patch('change-password')

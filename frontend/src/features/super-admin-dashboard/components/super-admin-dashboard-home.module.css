@@ -133,6 +133,44 @@
 .activityItem small { color: #6b7b91; font-size: 9px; }
 .activityItem time { margin-left: auto; color: #607188; font-size: 9px; font-weight: 600; white-space: nowrap; }
 
+/* Match the school dashboard's productive enterprise typography roles. */
+.metricCard { min-height: 178px; padding: 20px; }
+.change { font-size: var(--type-caption); font-weight: 750; line-height: var(--leading-tight); }
+.metricValue { font-size: var(--type-metric); line-height: 1.15; }
+.metricLabel { font-size: var(--type-body); font-weight: 700; line-height: var(--leading-tight); }
+.metricCard small { font-size: var(--type-caption); line-height: var(--leading-body); }
+.panel { padding: 24px; }
+.panelHeader h2 { font-size: var(--type-section-title); font-weight: 750; line-height: var(--leading-tight); }
+.panelHeader p { color: #607188; font-size: var(--type-body); line-height: var(--leading-body); }
+.panelHeader button, .panelLink { min-height: 36px; padding: 0 12px; font-size: var(--type-caption); font-weight: 700; }
+.growthSummary span, .legend { font-size: var(--type-caption); line-height: var(--leading-tight); }
+.growthSummary strong { font-size: 22px; line-height: 1.2; }
+.growthSummary small { font-size: var(--type-caption); }
+.yAxis, .xAxis { font-size: var(--type-overline); }
+.tooltip text:first-of-type { font-size: 9px; }
+.tooltip text:last-of-type { font-size: 11px; }
+.tableWrap th { font-size: var(--type-overline); }
+.tableWrap td, .tableWrap td strong { font-size: var(--type-table); line-height: var(--leading-tight); }
+.tableWrap td { padding-top: 15px; padding-bottom: 15px; }
+.tableWrap td small { font-size: var(--type-caption); line-height: var(--leading-tight); }
+.schoolLogo { width: 40px; height: 40px; font-size: var(--type-overline); }
+.workspaceUrl { font-size: var(--type-label); }
+.status { font-size: var(--type-caption); font-weight: 750; }
+.tableEmpty { font-size: var(--type-body) !important; }
+.live { font-size: var(--type-overline); }
+.healthCard > span { font-size: var(--type-label); }
+.healthCard > strong { font-size: var(--type-section-title); line-height: var(--leading-tight); }
+.healthCard p { font-size: var(--type-label); line-height: var(--leading-body); }
+.healthMeta { font-size: var(--type-caption); }
+.donut strong { font-size: 22px; }
+.donut span, .statusLegend span, .adoptionItem > div { font-size: var(--type-label); line-height: var(--leading-tight); }
+.statusLegend strong { font-size: 16px; }
+.adoptionItem small { font-size: var(--type-caption); line-height: var(--leading-tight); }
+.activityItem { gap: 12px; padding: 14px 0; }
+.activityIcon { width: 38px; height: 38px; }
+.activityItem strong { font-size: var(--type-body); font-weight: 700; line-height: var(--leading-tight); }
+.activityItem small, .activityItem time { font-size: var(--type-caption); line-height: var(--leading-tight); }
+
 @media (max-width: 1260px) {
   .metricsGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .contentGrid { grid-template-columns: 1fr; }
@@ -147,9 +185,9 @@
 
 @media (max-width: 560px) {
   .metricsGrid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .metricCard { min-height: 150px; padding: 14px; }
-  .metricValue { font-size: 23px; }
-  .panel { padding: 15px; }
+  .metricCard { min-height: 166px; padding: 17px; }
+  .metricValue { font-size: 25px; }
+  .panel { padding: 18px; }
   .growthPanel { overflow-x: auto; }
   .growthPanel > * { min-width: 570px; }
   .schoolsPanel { overflow: hidden; }

@@ -40,6 +40,17 @@ function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
       name: 'School A',
       slug: 'school-a',
       status: SchoolStatus.ACTIVE,
+      contactEmail: null,
+      phoneNumber: null,
+      websiteUrl: null,
+      addressLine1: null,
+      addressLine2: null,
+      city: null,
+      stateOrProvince: null,
+      postalCode: null,
+      country: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     },
     ...overrides,
   };
@@ -48,8 +59,13 @@ function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
 function setup(user: AuthUser | null, passwordMatches = true) {
   const users = {
     findByEmail: jest.fn().mockResolvedValue(user),
+    findById: jest.fn().mockResolvedValue(user),
     findActiveSchoolsByNameOrSlug: jest.fn().mockResolvedValue([]),
     updateLastLogin: jest.fn().mockResolvedValue(undefined),
+    updateProfile: jest.fn().mockImplementation(
+      (_id: string, changes: Partial<AuthUser>) =>
+        Promise.resolve({ ...user!, ...changes }),
+    ),
   } as unknown as jest.Mocked<AuthRepository>;
   const passwords = {
     compare: jest.fn().mockResolvedValue(passwordMatches),
@@ -213,5 +229,34 @@ describe('AuthService.resolveTenant', () => {
     await expect(
       service.resolveTenant({ query: 'School A' }),
     ).rejects.toBeInstanceOf(ConflictException);
+  });
+});
+
+describe('AuthService.updateProfile', () => {
+  it('updates editable identity fields and returns a public user', async () => {
+    const { service, users } = setup(makeUser());
+
+    const result = await service.updateProfile('u1', {
+      firstName: 'Updated',
+      phoneNumber: '+880 1700 000000',
+    });
+
+    expect(users.updateProfile).toHaveBeenCalledWith('u1', {
+      firstName: 'Updated',
+      phoneNumber: '+880 1700 000000',
+    });
+    expect(result).toMatchObject({
+      firstName: 'Updated',
+      phoneNumber: '+880 1700 000000',
+    });
+    expect(result).not.toHaveProperty('passwordHash');
+  });
+
+  it('rejects an update when the user no longer exists', async () => {
+    const { service } = setup(null);
+
+    await expect(
+      service.updateProfile('missing', { firstName: 'Updated' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

@@ -9,7 +9,7 @@
   display: block;
   margin-bottom: 7px;
   color: #0870ed;
-  font-size: 10px;
+  font-size: var(--type-overline);
   font-weight: 850;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -17,14 +17,14 @@
 .header h1 {
   margin: 0;
   color: #17253d;
-  font-size: 32px;
+  font-size: var(--type-page-title);
   letter-spacing: -0.045em;
 }
 .header p {
   max-width: 650px;
   margin: 7px 0 0;
   color: #68778d;
-  font-size: 13px;
+  font-size: var(--type-body);
   line-height: 1.5;
 }
 .action {

@@ -136,6 +136,35 @@
 .activityAvatar.purple { color: #7357bd; background: #eee9ff; }
 .activityItem time { margin-left: auto; color: #607188; font-size: 9px; font-weight: 600; white-space: nowrap; }
 
+/* Productive dashboard typography: consistent roles, weights and row density. */
+.metricCard { min-height: 178px; padding: 20px; }
+.metricChange { font-size: var(--type-caption); font-weight: 750; line-height: var(--leading-tight); }
+.metricValue { font-size: var(--type-metric); line-height: 1.15; }
+.metricLabel { font-size: var(--type-body); font-weight: 700; line-height: var(--leading-tight); }
+.metricCard small { font-size: var(--type-caption); line-height: var(--leading-body); }
+.panel { padding: 24px; }
+.panelHeader h2 { font-size: var(--type-section-title); font-weight: 750; line-height: var(--leading-tight); }
+.panelHeader p { color: #607188; font-size: var(--type-body); line-height: var(--leading-body); }
+.panelAction { min-height: 36px; padding: 0 12px; font-size: var(--type-caption); font-weight: 700; }
+.chartLegend { font-size: var(--type-caption); font-weight: 650; }
+.chartAxis, .chartDays { font-size: var(--type-overline); font-weight: 600; }
+.chartTooltip text:first-of-type { font-size: 9px; }
+.chartTooltip text:last-of-type { font-size: 12px; }
+.donut strong { font-size: 24px; line-height: 1.15; }
+.donut span, .distributionLegend span, .distributionLegend small,
+.capacity div { font-size: var(--type-caption); line-height: var(--leading-tight); }
+.distributionLegend strong { font-size: 16px; line-height: var(--leading-tight); }
+.distributionLegend > div { padding: 12px 13px; }
+.eventItem, .activityItem { gap: 14px; padding: 15px 0; }
+.eventDate { width: 46px; height: 46px; }
+.eventDate strong { font-size: 15px; }
+.eventDate small { font-size: 10px; font-weight: 700; }
+.eventCopy strong, .activityCopy strong { font-size: var(--type-body); font-weight: 700; line-height: var(--leading-tight); }
+.eventCopy small, .activityCopy small { color: #68788e; font-size: var(--type-caption); line-height: var(--leading-tight); }
+.eventAudience { padding: 6px 9px; font-size: var(--type-overline); font-weight: 650; }
+.activityAvatar { width: 42px; height: 42px; font-size: var(--type-overline); }
+.activityItem time { font-size: var(--type-caption); font-weight: 600; }
+
 @media (max-width: 1180px) {
   .metricsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -148,10 +177,10 @@
 
 @media (max-width: 600px) {
   .metricsGrid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .metricCard { min-height: 150px; padding: 15px; }
-  .metricValue { font-size: 23px; }
-  .metricChange { font-size: 8px; }
-  .panel { padding: 16px; }
+  .metricCard { min-height: 166px; padding: 17px; }
+  .metricValue { font-size: 25px; }
+  .metricChange { font-size: var(--type-overline); }
+  .panel { padding: 18px; }
   .performancePanel { overflow-x: auto; }
   .chartLegend,
   .chartWrap { min-width: 520px; }

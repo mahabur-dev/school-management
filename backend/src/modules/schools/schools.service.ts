@@ -14,6 +14,7 @@ import { MailService } from '../mail/mail.service';
 import { getSchoolAdminInvitationTemplate } from '../mail/templates/school-admin-invitation.template';
 import { CreateSchoolDto } from './dto/create-school.dto';
 import { ListSchoolsQueryDto } from './dto/list-schools-query.dto';
+import type { UpdateSchoolProfileDto } from './dto/update-school-profile.dto';
 import { SchoolsRepository } from './schools.repository';
 
 /** Slugs that would collide with platform subdomains. */
@@ -98,6 +99,11 @@ export class SchoolsService {
     const school = await this.repository.findById(id);
     if (!school) throw new NotFoundException('School not found');
     return school;
+  }
+
+  async updateOwnProfile(id: string, dto: UpdateSchoolProfileDto) {
+    await this.getById(id);
+    return this.repository.updateProfile(id, dto);
   }
 
   async updateStatus(id: string, status: SchoolStatus) {

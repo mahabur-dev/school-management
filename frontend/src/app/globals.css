@@ -4,8 +4,21 @@
 
 :root {
   color-scheme: light;
-  font-family:
-    Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  /* Shared application typography: use roles rather than page-specific sizes. */
+  --type-page-title: 32px;
+  --type-dialog-title: 24px;
+  --type-section-title: 18px;
+  --type-metric: 28px;
+  --type-body: 14px;
+  --type-label: 13px;
+  --type-table: 14px;
+  --type-caption: 12px;
+  --type-overline: 11px;
+  --leading-tight: 1.3;
+  --leading-body: 1.5;
+  font-family: var(--font-sans);
   font-synthesis: none;
   --brand-blue: #0b73f6;
   --brand-blue-dark: #0759cc;
@@ -31,6 +44,10 @@ html {
 body {
   color: var(--brand-ink);
   background: #f7faff;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 button,

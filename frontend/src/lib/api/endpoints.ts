@@ -5,7 +5,9 @@ export const endpoints = {
     refresh: '/auth/refresh',
     logout: '/auth/logout',
     me: '/auth/me',
+    changePassword: '/auth/change-password',
   },
+  schoolProfile: '/schools/me',
   superAdmin: {
     schools: '/super-admin/schools',
     school: (schoolId: string) => `/super-admin/schools/${schoolId}`,
