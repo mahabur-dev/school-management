@@ -22,7 +22,11 @@ COPY nest-cli.json tsconfig.json tsconfig.build.json prisma.config.ts ./
 COPY prisma ./prisma
 COPY src ./src
 
-RUN npm run build
+# `prisma generate` validates that a datasource URL exists but does not connect
+# to it. Railway secrets are intentionally unavailable to image build layers,
+# so use a non-routable build-only value. The runtime migration and API use the
+# real DATABASE_URL injected by Railway.
+RUN DATABASE_URL=postgresql://build:build@127.0.0.1:5432/build npm run build
 
 FROM base AS production-dependencies
 
