@@ -8,8 +8,8 @@
   },
   "scripts": {
     "prebuild": "prisma generate",
-    "build": "nest build",
-    "start": "nest start",
+    "build": "node api.js && nest build",
+    "start": "node api.js && nest start",
     "start:dev": "nest start --watch --preserveWatchOutput",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,test,prisma}/**/*.ts\"",
