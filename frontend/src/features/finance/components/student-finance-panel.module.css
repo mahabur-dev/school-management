@@ -19,4 +19,10 @@
 .badge { display:inline-flex; align-items:center; min-height:20px; padding:0 7px; border-radius:99px; font-size:7px; font-weight:850; letter-spacing:.03em; text-transform:uppercase; white-space:nowrap; }
 .success { color:#087f5b; background:#e8faf3; }.warning { color:#9b6811; background:#fff4d9; }.danger { color:#b33f3f; background:#fff0f0; }.neutral { color:#68778d; background:#eef2f6; }
 .empty { padding:22px!important; color:#7a899c!important; text-align:center; }
+.state, .error, .tableWrap td, .tableWrap td strong { font-size:var(--type-table); }
+.metrics span { font-size:var(--type-label); }
+.metrics strong, .section h3 { font-size:var(--type-section-title); }
+.section p, .tableWrap td small { font-size:var(--type-caption); }
+.section header > span, .tableWrap th, .badge { font-size:var(--type-overline); }
+.tableWrap table { min-width:720px; }
 @media (max-width:650px) { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }

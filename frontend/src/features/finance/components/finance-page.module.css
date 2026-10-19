@@ -33,7 +33,7 @@
 .table tr:last-child td { border-bottom:0; }
 .table td strong { display:block; color:#1d2c43; font-size:12px; }
 .table code { color:#405f86; font:inherit; font-size:10px; font-weight:800; }
-.actionCell { display:flex; justify-content:flex-end; gap:9px; align-items:center; white-space:nowrap; }
+.actionCell { display:flex; justify-content:flex-start; gap:12px; align-items:center; white-space:nowrap; }
 .dangerButton { padding:0; border:0; color:#c14343; background:transparent; font:inherit; font-size:11px; font-weight:800; cursor:pointer; }
 .badge { display:inline-flex; align-items:center; min-height:22px; padding:0 8px; border-radius:99px; font-size:9px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; }
 .success { color:#087f5b; background:#e9fbf4; }.warning { color:#9b6811; background:#fff5dc; }.neutral { color:#68778d; background:#f0f3f7; }
@@ -81,5 +81,23 @@
 .lineItems { display:grid; border-top:1px solid #e7edf4; }
 .lineItems > div { display:flex; justify-content:space-between; gap:15px; padding:12px 0; border-bottom:1px solid #e7edf4; color:#24364d; font-size:12px; }
 .lineItems span { display:grid; gap:4px; }.lineItems small { color:#7c8b9e; font-size:10px; }
+
+/* Shared typography roles for finance views, tables and dialogs. */
+.primaryButton, .secondaryButton, .tab, .tabActive, .dialogFooter button,
+.documentActions button, .textButton, .dangerButton, .sectionTitle button { font-size:var(--type-body); }
+.loading, .error, .empty, .activityRow strong, .table td, .table td strong,
+.table code, .allocationRow strong, .allocationRow input, .detailGrid strong,
+.lineItems > div, .field input, .field textarea { font-size:var(--type-table); }
+.metric span, .field, .detailGrid span { font-size:var(--type-label); }
+.metric strong { font-size:var(--type-metric); }
+.sectionTitle h2, .toolbar h2 { font-size:var(--type-section-title); }
+.dialog h2 { font-size:var(--type-dialog-title); }
+.sectionTitle p, .toolbar p { color:#63748a; font-size:var(--type-body); }
+.metric small, .activityRow small, .table small, .hint, .paymentNotice,
+.allocationHeader, .allocationHeader span, .allocationRow small,
+.lineItems small { font-size:var(--type-caption); }
+.paymentNotice strong { font-size:var(--type-label); }
+.table th, .badge, .dialog header > div > span { font-size:var(--type-overline); }
+.table { min-width:840px; }
 @media (max-width:900px) { .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }.twoColumns { grid-template-columns:1fr; } }
-@media (max-width:620px) { .primaryButton { width:100%; }.toolbar { flex-direction:column; }.secondaryButton { width:100%; }.card { padding:15px; }.formGrid { grid-template-columns:1fr; }.metrics { grid-template-columns:1fr; }.dialog { padding:20px; }.tabs { margin-right:-2px; }.documentActions { display:grid; grid-template-columns:1fr 1fr; }.documentActions button { padding:0 8px; } }
+@media (max-width:620px) { .primaryButton { width:100%; }.toolbar { flex-direction:column; }.secondaryButton { width:100%; }.card { padding:15px; }.formGrid { grid-template-columns:1fr; }.metrics { grid-template-columns:1fr; }.dialog { padding:20px; }.tabs { margin-right:-2px; }.documentActions { display:grid; grid-template-columns:1fr 1fr; }.documentActions button { padding:0 8px; }.field input, .field textarea, .allocationRow input { font-size:16px; } }

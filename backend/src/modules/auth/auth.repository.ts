@@ -2,7 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaService, SchoolStatus } from '../../prisma';
 
 const AUTH_USER_INCLUDE = {
-  school: { select: { id: true, name: true, slug: true, status: true } },
+  school: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      status: true,
+      contactEmail: true,
+      phoneNumber: true,
+      websiteUrl: true,
+      addressLine1: true,
+      addressLine2: true,
+      city: true,
+      stateOrProvince: true,
+      postalCode: true,
+      country: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  },
 } satisfies Prisma.UserInclude;
 
 /** A user row (including passwordHash) plus its school summary. Internal to auth. */
@@ -63,6 +81,21 @@ export class AuthRepository {
     await this.prisma.user.update({
       where: { id },
       data: { lastLoginAt: new Date() },
+    });
+  }
+
+  updateProfile(
+    id: string,
+    data: {
+      firstName?: string;
+      lastName?: string;
+      phoneNumber?: string | null;
+    },
+  ): Promise<AuthUser> {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+      include: AUTH_USER_INCLUDE,
     });
   }
 

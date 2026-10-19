@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, PrismaService, SchoolStatus, UserRole } from '../../prisma';
 import { bootstrapFeatureConfiguration } from '../features/feature-configuration.bootstrap';
 import { USER_PUBLIC_SELECT } from '../users/users.repository';
+import type { UpdateSchoolProfileDto } from './dto/update-school-profile.dto';
 
 /**
  * Schools are the tenant root, so this repository is intentionally unscoped:
@@ -98,6 +99,10 @@ export class SchoolsRepository {
 
   findBySlug(slug: string) {
     return this.prisma.school.findUnique({ where: { slug } });
+  }
+
+  updateProfile(id: string, data: UpdateSchoolProfileDto) {
+    return this.prisma.school.update({ where: { id }, data });
   }
 
   /** Suspending also ends every live session of that school's users. */

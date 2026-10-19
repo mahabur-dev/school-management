@@ -11,6 +11,7 @@ import { AuthRepository } from './auth.repository';
 import { toUserResponse } from './auth.mapper';
 import { LoginDto } from './dto/login.dto';
 import { ResolveTenantDto } from './dto/resolve-tenant.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { PasswordService } from './password.service';
 import { SessionService } from './session.service';
 
@@ -99,5 +100,11 @@ export class AuthService {
     const user = await this.users.findById(userId);
     if (!user) throw new NotFoundException('User not found');
     return toUserResponse(user);
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.users.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+    return toUserResponse(await this.users.updateProfile(userId, dto));
   }
 }

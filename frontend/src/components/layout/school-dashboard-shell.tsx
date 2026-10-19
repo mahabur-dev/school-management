@@ -95,10 +95,13 @@ export function DashboardShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [isLoggingOut, setLoggingOut] = useState(false);
+  const [activeSession, setActiveSession] = useState(session.get());
   const [navigationExpansion, setNavigationExpansion] = useState<
     Record<string, boolean>
   >({});
-  const user = session.get()?.user;
+  useEffect(() => session.subscribe(setActiveSession), []);
+
+  const user = activeSession?.user;
   const displayName = user
     ? `${user.firstName} ${user.lastName}`
     : fallbackName;

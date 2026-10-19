@@ -1,12 +1,21 @@
 /// Tenant root. Everything a school owns hangs off this row.
 model School {
-  id        String       @id @default(uuid(7)) @db.Uuid
-  name      String       @db.VarChar(150)
+  id              String       @id @default(uuid(7)) @db.Uuid
+  name            String       @db.VarChar(150)
   /// URL-safe unique key; later resolved from the subdomain (dps.example.com).
-  slug      String       @unique @db.VarChar(63)
-  status    SchoolStatus @default(ACTIVE)
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  slug            String       @unique @db.VarChar(63)
+  status          SchoolStatus @default(ACTIVE)
+  contactEmail    String?      @map("contact_email") @db.VarChar(254)
+  phoneNumber     String?      @map("phone_number") @db.VarChar(32)
+  websiteUrl      String?      @map("website_url") @db.VarChar(500)
+  addressLine1    String?      @map("address_line_1") @db.VarChar(180)
+  addressLine2    String?      @map("address_line_2") @db.VarChar(180)
+  city            String?      @db.VarChar(100)
+  stateOrProvince String?      @map("state_or_province") @db.VarChar(100)
+  postalCode      String?      @map("postal_code") @db.VarChar(24)
+  country         String?      @db.VarChar(100)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   users              User[]
   features           SchoolFeature[]

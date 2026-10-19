@@ -15,5 +15,6 @@ export function toUserResponse(user: AuthUser) {
     mustChangePassword: user.mustChangePassword,
     emailVerified: Boolean(user.emailVerifiedAt),
     lastLoginAt: user.lastLoginAt,
+    updatedAt: user.updatedAt,
   };
 }
